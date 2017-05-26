@@ -16,6 +16,7 @@ class Vector3{
         float Z;
 
 		int Distance(Vector3 *);
+		float Distancef(Vector3 *);
 		float Length();
 		Vector3 Normalize();
 		Vector3 operator- (Vector3);
@@ -24,5 +25,9 @@ class Vector3{
 		Vector3 operator* (Vector3);
 		Vector3 operator* (float);
         Vector3 operator* (int);
+
+        Vector3 cross(Vector3);
+        float dot(Vector3);
+        bool operator== (Vector3);
 };
 #endif

@@ -14,6 +14,7 @@ void Reshape (int w, int h);
 void Wheel(int wheel, int direction, int x, int y);
 
 int main(int argc, char** argv){
+
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(width, height);
@@ -55,6 +56,8 @@ void Update(){
 void Draw(){
     a.Draw();
 }
+
+
 
 void Reshape (int w, int h){
    glViewport (0, 0, (GLsizei) w, (GLsizei) h);

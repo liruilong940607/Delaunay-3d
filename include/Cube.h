@@ -7,7 +7,12 @@
 #include <time.h>
 #include "GameObject.h"
 #include "Vector3.h"
-
+#include "Delaunay.h"
+#include <cmath>
+#include <cstdlib>
+#include <iostream>
+#include <time.h>   
+#define PI 3.141592653589
 static const GLfloat g_vertex_buffer_data[] = {
     -1.0f,-1.0f,-1.0f, // triangle 1 : begin
     -1.0f,-1.0f, 1.0f,
@@ -62,6 +67,10 @@ public:
     virtual void Draw();
     virtual void Update(double deltaTime);
     void RandomizePoints();
+
+    Delaunay d;
+    void SetPointsDelaunay();
+    
 };
 
 

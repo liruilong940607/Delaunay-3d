@@ -37,6 +37,11 @@ int Vector3::Distance(Vector3 *v){
 	return (int)sqrt((float)(this->X - v->X)*(this->X - v->X) + (this->Y - v->Y) * (this->Y - v->Y) + (this->Z - v->Z) * (this->Z - v->Z));
 }
 
+float Vector3::Distancef(Vector3 *v){
+	return (float)sqrt((float)(this->X - v->X)*(this->X - v->X) + (float)(this->Y - v->Y) * (this->Y - v->Y) + (float)(this->Z - v->Z) * (this->Z - v->Z));
+}
+
+
 /*
 * Compute the length of a vector
 * sqrt(x²+y²)
@@ -76,4 +81,19 @@ Vector3 Vector3::operator*(float f){
 
 Vector3 Vector3::operator*(int f){
     return Vector3(this->X * f, this->Y * f, this->Z * f);
+}
+
+Vector3 Vector3::cross(Vector3 v){
+	return  Vector3(this->Y * v.Z - this->Z * v.Y,
+					this->Z * v.X - this->X * v.Z,
+					this->X * v.Y - this->Y * v.X
+					);
+}
+
+float Vector3::dot(Vector3 v){
+	return float(this->X * v.X + this->Y * v.Y + this->Z * v.Z);
+}
+
+bool Vector3::operator==(Vector3 v){
+	return this->X == v.X && this->Y == v.Y && this->Z == v.Z;
 }
