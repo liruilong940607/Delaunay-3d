@@ -29,5 +29,7 @@ class Vector3{
         Vector3 cross(Vector3);
         float dot(Vector3);
         bool operator== (Vector3);
+
+		Vector3 Rand_Vector( float, float );
 };
 #endif

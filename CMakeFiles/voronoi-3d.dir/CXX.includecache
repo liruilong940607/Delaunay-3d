@@ -6,9 +6,43 @@
 
 #IncludeRegexTransform: 
 
-/home/dalong/Workspace/CG-Voronoi/My-voronoi-3d/src/Cube.cpp
+/mnt/tencent/vicky/github/Delaunay-3d/src/convhull_demo.cpp
+iostream
+-
+stdio.h
+-
+stdlib.h
+-
+vector
+-
+array
+-
+Vector3.h
+/mnt/tencent/vicky/github/Delaunay-3d/src/Vector3.h
+time.h
+-
+convhull.h
+/mnt/tencent/vicky/github/Delaunay-3d/src/convhull.h
+
+/mnt/tencent/vicky/github/Delaunay-3d/src/main.cpp
+GL/glew.h
+-
+GL/freeglut.h
+-
+Application.h
+/mnt/tencent/vicky/github/Delaunay-3d/src/Application.h
+
+include/Application.h
+GL/glew.h
+-
+GL/freeglut.h
+-
+math.h
+-
+GameObject.h
+include/GameObject.h
 Cube.h
-/home/dalong/Workspace/CG-Voronoi/My-voronoi-3d/src/Cube.h
+include/Cube.h
 
 include/Cube.h
 GL/glew.h
@@ -68,5 +102,15 @@ vector
 
 include/Vector3.h
 cmath
+-
+
+include/convhull.h
+Vector3.h
+include/Vector3.h
+stdlib.h
+-
+vector
+-
+array
 -
 
