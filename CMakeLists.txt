@@ -30,13 +30,6 @@ if (NOT OPENGL_FOUND)
     message (ERROR "OPENGL not found!")
 endif (NOT OPENGL_FOUND)
 
-find_package (Bullet REQUIRED)
-include_directories (${BULLET_INCLUDE_DIRS})
-link_directories (${BULLET_LIBRARY_DIRS})
-if (NOT BULLET_FOUND)
-    message (ERROR "BULLET not found!")
-endif (NOT BULLET_FOUND)
-
 file(GLOB SRCS src/*.cpp)
 file(GLOB HDRS include/*.h)
 
@@ -47,4 +40,4 @@ add_executable (${PROJECT_NAME} ${SRCS} ${HDRS} ${ESGIGL_HDRS} ${ESGIGL_SRCS} ${
 ########################################################
 # Linking & stuff
 #########################################################
-target_link_libraries (${PROJECT_NAME} ${OPENGL_LIBRARIES} ${GLEW_LIBRARY} ${GLUT_LIBRARY} -lBulletDynamics -lBulletCollision -lLinearMath -lglut -lGLU -lGL)
+target_link_libraries (${PROJECT_NAME} ${OPENGL_LIBRARIES} ${GLEW_LIBRARY} ${GLUT_LIBRARY} -lglut -lGLU -lGL)

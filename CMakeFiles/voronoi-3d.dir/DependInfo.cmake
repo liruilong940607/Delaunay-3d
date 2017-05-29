@@ -4,15 +4,16 @@ SET(CMAKE_DEPENDS_LANGUAGES
   )
 # The set of files for implicit dependencies of each language:
 SET(CMAKE_DEPENDS_CHECK_CXX
-  "/home/dalong/Workspace/CG-Voronoi/My-voronoi-3d/src/Application.cpp" "/home/dalong/Workspace/CG-Voronoi/My-voronoi-3d/CMakeFiles/voronoi-3d.dir/src/Application.cpp.o"
-  "/home/dalong/Workspace/CG-Voronoi/My-voronoi-3d/src/Cube.cpp" "/home/dalong/Workspace/CG-Voronoi/My-voronoi-3d/CMakeFiles/voronoi-3d.dir/src/Cube.cpp.o"
-  "/home/dalong/Workspace/CG-Voronoi/My-voronoi-3d/src/Delaunay.cpp" "/home/dalong/Workspace/CG-Voronoi/My-voronoi-3d/CMakeFiles/voronoi-3d.dir/src/Delaunay.cpp.o"
-  "/home/dalong/Workspace/CG-Voronoi/My-voronoi-3d/src/Line.cpp" "/home/dalong/Workspace/CG-Voronoi/My-voronoi-3d/CMakeFiles/voronoi-3d.dir/src/Line.cpp.o"
-  "/home/dalong/Workspace/CG-Voronoi/My-voronoi-3d/src/Tetrahedron.cpp" "/home/dalong/Workspace/CG-Voronoi/My-voronoi-3d/CMakeFiles/voronoi-3d.dir/src/Tetrahedron.cpp.o"
-  "/home/dalong/Workspace/CG-Voronoi/My-voronoi-3d/src/Triangle.cpp" "/home/dalong/Workspace/CG-Voronoi/My-voronoi-3d/CMakeFiles/voronoi-3d.dir/src/Triangle.cpp.o"
-  "/home/dalong/Workspace/CG-Voronoi/My-voronoi-3d/src/Vector3.cpp" "/home/dalong/Workspace/CG-Voronoi/My-voronoi-3d/CMakeFiles/voronoi-3d.dir/src/Vector3.cpp.o"
-  "/home/dalong/Workspace/CG-Voronoi/My-voronoi-3d/src/Voronoi.cpp" "/home/dalong/Workspace/CG-Voronoi/My-voronoi-3d/CMakeFiles/voronoi-3d.dir/src/Voronoi.cpp.o"
-  "/home/dalong/Workspace/CG-Voronoi/My-voronoi-3d/src/main.cpp" "/home/dalong/Workspace/CG-Voronoi/My-voronoi-3d/CMakeFiles/voronoi-3d.dir/src/main.cpp.o"
+  "/mnt/tencent/vicky/github/Delaunay-3d/src/Application.cpp" "/mnt/tencent/vicky/github/Delaunay-3d/CMakeFiles/voronoi-3d.dir/src/Application.cpp.o"
+  "/mnt/tencent/vicky/github/Delaunay-3d/src/Cube.cpp" "/mnt/tencent/vicky/github/Delaunay-3d/CMakeFiles/voronoi-3d.dir/src/Cube.cpp.o"
+  "/mnt/tencent/vicky/github/Delaunay-3d/src/Delaunay.cpp" "/mnt/tencent/vicky/github/Delaunay-3d/CMakeFiles/voronoi-3d.dir/src/Delaunay.cpp.o"
+  "/mnt/tencent/vicky/github/Delaunay-3d/src/Line.cpp" "/mnt/tencent/vicky/github/Delaunay-3d/CMakeFiles/voronoi-3d.dir/src/Line.cpp.o"
+  "/mnt/tencent/vicky/github/Delaunay-3d/src/Tetrahedron.cpp" "/mnt/tencent/vicky/github/Delaunay-3d/CMakeFiles/voronoi-3d.dir/src/Tetrahedron.cpp.o"
+  "/mnt/tencent/vicky/github/Delaunay-3d/src/Triangle.cpp" "/mnt/tencent/vicky/github/Delaunay-3d/CMakeFiles/voronoi-3d.dir/src/Triangle.cpp.o"
+  "/mnt/tencent/vicky/github/Delaunay-3d/src/Vector3.cpp" "/mnt/tencent/vicky/github/Delaunay-3d/CMakeFiles/voronoi-3d.dir/src/Vector3.cpp.o"
+  "/mnt/tencent/vicky/github/Delaunay-3d/src/convhull.cpp" "/mnt/tencent/vicky/github/Delaunay-3d/CMakeFiles/voronoi-3d.dir/src/convhull.cpp.o"
+  "/mnt/tencent/vicky/github/Delaunay-3d/src/convhull_demo.cpp" "/mnt/tencent/vicky/github/Delaunay-3d/CMakeFiles/voronoi-3d.dir/src/convhull_demo.cpp.o"
+  "/mnt/tencent/vicky/github/Delaunay-3d/src/main.cpp" "/mnt/tencent/vicky/github/Delaunay-3d/CMakeFiles/voronoi-3d.dir/src/main.cpp.o"
   )
 SET(CMAKE_CXX_COMPILER_ID "GNU")
 
@@ -22,7 +23,6 @@ SET(CMAKE_TARGET_LINKED_INFO_FILES
 
 # The include file search paths:
 SET(CMAKE_C_TARGET_INCLUDE_PATH
-  "/usr/local/include/bullet"
   "include"
   )
 SET(CMAKE_CXX_TARGET_INCLUDE_PATH ${CMAKE_C_TARGET_INCLUDE_PATH})

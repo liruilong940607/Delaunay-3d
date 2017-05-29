@@ -31,8 +31,13 @@ CMakeFiles/voronoi-3d.dir/src/Triangle.cpp.o: src/Triangle.cpp
 CMakeFiles/voronoi-3d.dir/src/Vector3.cpp.o: src/Vector3.cpp
 CMakeFiles/voronoi-3d.dir/src/Vector3.cpp.o: include/Vector3.h
 
-CMakeFiles/voronoi-3d.dir/src/Voronoi.cpp.o: src/Voronoi.cpp
-CMakeFiles/voronoi-3d.dir/src/Voronoi.cpp.o: include/Voronoi.h
+CMakeFiles/voronoi-3d.dir/src/convhull.cpp.o: src/convhull.cpp
+CMakeFiles/voronoi-3d.dir/src/convhull.cpp.o: include/Vector3.h
+CMakeFiles/voronoi-3d.dir/src/convhull.cpp.o: include/convhull.h
+
+CMakeFiles/voronoi-3d.dir/src/convhull_demo.cpp.o: src/convhull_demo.cpp
+CMakeFiles/voronoi-3d.dir/src/convhull_demo.cpp.o: include/Vector3.h
+CMakeFiles/voronoi-3d.dir/src/convhull_demo.cpp.o: include/convhull.h
 
 CMakeFiles/voronoi-3d.dir/src/main.cpp.o: src/main.cpp
 CMakeFiles/voronoi-3d.dir/src/main.cpp.o: include/Application.h
