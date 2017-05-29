@@ -1,4 +1,4 @@
-# Install script for directory: /home/dalong/Workspace/CG-Voronoi/My-voronoi-3d
+# Install script for directory: /mnt/tencent/vicky/github/Delaunay-3d
 
 # Set the install prefix
 IF(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -38,7 +38,7 @@ ELSE(CMAKE_INSTALL_COMPONENT)
   SET(CMAKE_INSTALL_MANIFEST "install_manifest.txt")
 ENDIF(CMAKE_INSTALL_COMPONENT)
 
-FILE(WRITE "/home/dalong/Workspace/CG-Voronoi/My-voronoi-3d/${CMAKE_INSTALL_MANIFEST}" "")
+FILE(WRITE "/mnt/tencent/vicky/github/Delaunay-3d/${CMAKE_INSTALL_MANIFEST}" "")
 FOREACH(file ${CMAKE_INSTALL_MANIFEST_FILES})
-  FILE(APPEND "/home/dalong/Workspace/CG-Voronoi/My-voronoi-3d/${CMAKE_INSTALL_MANIFEST}" "${file}\n")
+  FILE(APPEND "/mnt/tencent/vicky/github/Delaunay-3d/${CMAKE_INSTALL_MANIFEST}" "${file}\n")
 ENDFOREACH(file)

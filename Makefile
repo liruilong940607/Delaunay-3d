@@ -38,22 +38,19 @@ RM = /usr/bin/cmake -E remove -f
 # Escaping for special characters.
 EQUALS = =
 
-# The program to use to edit the cache.
-CMAKE_EDIT_COMMAND = /usr/bin/cmake-gui
-
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/dalong/Workspace/CG-Voronoi/My-voronoi-3d
+CMAKE_SOURCE_DIR = /mnt/tencent/vicky/github/Delaunay-3d
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/dalong/Workspace/CG-Voronoi/My-voronoi-3d
+CMAKE_BINARY_DIR = /mnt/tencent/vicky/github/Delaunay-3d
 
 #=============================================================================
 # Targets provided globally by CMake.
 
 # Special rule for the target edit_cache
 edit_cache:
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake cache editor..."
-	/usr/bin/cmake-gui -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running interactive CMake command-line interface..."
+	/usr/bin/cmake -i .
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -72,9 +69,9 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/dalong/Workspace/CG-Voronoi/My-voronoi-3d/CMakeFiles /home/dalong/Workspace/CG-Voronoi/My-voronoi-3d/CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/tencent/vicky/github/Delaunay-3d/CMakeFiles /mnt/tencent/vicky/github/Delaunay-3d/CMakeFiles/progress.marks
 	$(MAKE) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/dalong/Workspace/CG-Voronoi/My-voronoi-3d/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /mnt/tencent/vicky/github/Delaunay-3d/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -282,29 +279,53 @@ src/Vector3.cpp.s:
 	$(MAKE) -f CMakeFiles/voronoi-3d.dir/build.make CMakeFiles/voronoi-3d.dir/src/Vector3.cpp.s
 .PHONY : src/Vector3.cpp.s
 
-src/Voronoi.o: src/Voronoi.cpp.o
-.PHONY : src/Voronoi.o
+src/convhull.o: src/convhull.cpp.o
+.PHONY : src/convhull.o
 
 # target to build an object file
-src/Voronoi.cpp.o:
-	$(MAKE) -f CMakeFiles/voronoi-3d.dir/build.make CMakeFiles/voronoi-3d.dir/src/Voronoi.cpp.o
-.PHONY : src/Voronoi.cpp.o
+src/convhull.cpp.o:
+	$(MAKE) -f CMakeFiles/voronoi-3d.dir/build.make CMakeFiles/voronoi-3d.dir/src/convhull.cpp.o
+.PHONY : src/convhull.cpp.o
 
-src/Voronoi.i: src/Voronoi.cpp.i
-.PHONY : src/Voronoi.i
+src/convhull.i: src/convhull.cpp.i
+.PHONY : src/convhull.i
 
 # target to preprocess a source file
-src/Voronoi.cpp.i:
-	$(MAKE) -f CMakeFiles/voronoi-3d.dir/build.make CMakeFiles/voronoi-3d.dir/src/Voronoi.cpp.i
-.PHONY : src/Voronoi.cpp.i
+src/convhull.cpp.i:
+	$(MAKE) -f CMakeFiles/voronoi-3d.dir/build.make CMakeFiles/voronoi-3d.dir/src/convhull.cpp.i
+.PHONY : src/convhull.cpp.i
 
-src/Voronoi.s: src/Voronoi.cpp.s
-.PHONY : src/Voronoi.s
+src/convhull.s: src/convhull.cpp.s
+.PHONY : src/convhull.s
 
 # target to generate assembly for a file
-src/Voronoi.cpp.s:
-	$(MAKE) -f CMakeFiles/voronoi-3d.dir/build.make CMakeFiles/voronoi-3d.dir/src/Voronoi.cpp.s
-.PHONY : src/Voronoi.cpp.s
+src/convhull.cpp.s:
+	$(MAKE) -f CMakeFiles/voronoi-3d.dir/build.make CMakeFiles/voronoi-3d.dir/src/convhull.cpp.s
+.PHONY : src/convhull.cpp.s
+
+src/convhull_demo.o: src/convhull_demo.cpp.o
+.PHONY : src/convhull_demo.o
+
+# target to build an object file
+src/convhull_demo.cpp.o:
+	$(MAKE) -f CMakeFiles/voronoi-3d.dir/build.make CMakeFiles/voronoi-3d.dir/src/convhull_demo.cpp.o
+.PHONY : src/convhull_demo.cpp.o
+
+src/convhull_demo.i: src/convhull_demo.cpp.i
+.PHONY : src/convhull_demo.i
+
+# target to preprocess a source file
+src/convhull_demo.cpp.i:
+	$(MAKE) -f CMakeFiles/voronoi-3d.dir/build.make CMakeFiles/voronoi-3d.dir/src/convhull_demo.cpp.i
+.PHONY : src/convhull_demo.cpp.i
+
+src/convhull_demo.s: src/convhull_demo.cpp.s
+.PHONY : src/convhull_demo.s
+
+# target to generate assembly for a file
+src/convhull_demo.cpp.s:
+	$(MAKE) -f CMakeFiles/voronoi-3d.dir/build.make CMakeFiles/voronoi-3d.dir/src/convhull_demo.cpp.s
+.PHONY : src/convhull_demo.cpp.s
 
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
@@ -360,9 +381,12 @@ help:
 	@echo "... src/Vector3.o"
 	@echo "... src/Vector3.i"
 	@echo "... src/Vector3.s"
-	@echo "... src/Voronoi.o"
-	@echo "... src/Voronoi.i"
-	@echo "... src/Voronoi.s"
+	@echo "... src/convhull.o"
+	@echo "... src/convhull.i"
+	@echo "... src/convhull.s"
+	@echo "... src/convhull_demo.o"
+	@echo "... src/convhull_demo.i"
+	@echo "... src/convhull_demo.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
