@@ -13,7 +13,7 @@ void Update();
 void Reshape (int w, int h);
 void Wheel(int wheel, int direction, int x, int y);
 
-int main1(int argc, char** argv){
+int main_main(int argc, char** argv){
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);

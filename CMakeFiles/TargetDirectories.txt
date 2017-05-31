@@ -1,1 +1,0 @@
-/mnt/tencent/vicky/github/Delaunay-3d/CMakeFiles/voronoi-3d.dir

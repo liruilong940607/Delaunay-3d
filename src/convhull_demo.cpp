@@ -5,28 +5,29 @@
 # include<array>
 # include"Vector3.h"
 # include<time.h>
-# include"convhull.h"
+# include"point_sets.h"
 
 using namespace std;
 
 int main() {
 	srand((unsigned)time(0));
-
-	Vector3 s[6] = {Vector3(1,0,0),Vector3(0,1,0),
+	vector<Vector3> s;
+	/*Vector3 s[9] = {Vector3(1,0,0),Vector3(0,1,0),
 		            Vector3(0,0,1),Vector3(0,0,0),
 					Vector3(0.3f,0.3f,0.3f),
-	                Vector3(0.3f,0.2f,0.1f)};
+	                Vector3(1,1,1),Vector3(1,1,0),
+	                Vector3(0,1,1),Vector3(1,0,1)};*/
+	Vector3 v;
+	for(int i=0;i<100;i++) s.push_back( v.Rand_Vector(0,10) );
 
-	QuickHull3D QH( s, 6 ); 
+	PointSets3D PS( s ); 
 
-    vector<array<Vector3,3>>K = QH.Quick_Hull3D();
+    vector<array<int,3>>K = PS.Quick_Hull3D();
 
 	// print K
 	printf("%d\n", K.size());
 	for( int i=0; i<K.size(); i++ ) {
-		for( int j=0; j<3; j++ ) 
-			printf("(%f, %f, %f), ", K[i][j].X, K[i][j].Y, K[i][j].Z );
-		printf("\n");
+		printf("Facet <%d, %d, %d>\n", K[i][0], K[i][1], K[i][2] );
 	}
 
 
