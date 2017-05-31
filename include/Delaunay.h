@@ -16,9 +16,7 @@ class Delaunay {
 public:
     vector<Vector3> vertices;     // 与えられた点列
     vector<Tetrahedron> tetras;   // 四面体リスト
-
     vector<Line> edges;
-
     vector<Line> surfaceEdges;
     vector<Triangle> triangles;
 
@@ -27,7 +25,6 @@ public:
     }
 
     void SetData(vector<Vector3> seq) {
-
         for(int i = 0; i<seq.size(); i++) {
             vertices.push_back(seq[i]);
         }
@@ -40,8 +37,8 @@ public:
         Vector3 vMax = Vector3(-999.0f, -999.0f, -999.0f);
         Vector3 vMin = Vector3( 999.0f,  999.0f,  999.0f);
         for(int i = 0; i<seq.size(); i++) {
-        	Vector3 v = seq[i];
-            cout<<"points "<<i<<": "<<v.X<<" "<<v.Y<<" "<<v.Z<<endl;
+            Vector3 v = seq[i];
+            cout << "points " << i << ": " << v.X << " " << v.Y << " " << v.Z <<endl;
             if (vMax.X < v.X) vMax.X = v.X;
             if (vMax.Y < v.Y) vMax.Y = v.Y;
             if (vMax.Z < v.Z) vMax.Z = v.Z;
@@ -52,13 +49,14 @@ public:
         cout<<"vMax: "<<vMax.X<<" "<<vMax.Y<<" "<<vMax.Z<<endl;
         cout<<"vMin: "<<vMin.X<<" "<<vMin.Y<<" "<<vMin.Z<<endl;
         Vector3 center = Vector3();     // 外接球の中心座標
-        center.X = 0.5f * (vMax.X + vMin.X);//fixed
-        center.Y = 0.5f * (vMax.Y + vMin.Y);//fixed
-        center.Z = 0.5f * (vMax.Z + vMin.Z);//fixed
+        center.X = 0.5f * (vMax.X - vMin.X);//fixed
+        center.Y = 0.5f * (vMax.Y - vMin.Y);//fixed
+        center.Z = 0.5f * (vMax.Z - vMin.Z);//fixed
         float r = -1;                       // 半径
         for(int i = 0; i<seq.size(); i++) {
-        	Vector3 v = seq[i];
-            if (r < center.Distancef(&v)) r = center.Distancef(&v);
+            Vector3 v = seq[i];
+            if (r < center.Distancef(&v)) 
+                r = center.Distancef(&v);
         }
         r += 0.1f;                          // ちょっとおまけ
         cout<<"circle.o: "<<center.X<<" "<<center.Y<<" "<<center.X<<" circle.r: "<<r<<endl;
@@ -89,38 +87,33 @@ public:
         outer.push_back(v3);
         outer.push_back(v4);
         tetras.push_back(Tetrahedron(v1, v2, v3, v4));
-        cout<<"outer 1: "<<v1.X<<" "<<v1.Y<<" "<<v1.X<<endl;
-        cout<<"outer 2: "<<v2.X<<" "<<v2.Y<<" "<<v2.X<<endl;
-        cout<<"outer 3: "<<v3.X<<" "<<v3.Y<<" "<<v3.X<<endl;
-        cout<<"outer 4: "<<v4.X<<" "<<v4.Y<<" "<<v4.X<<endl;
+        cout<<"outer 1: "<<v1.X<<" "<<v1.Y<<" "<<v1.Z<<endl;
+        cout<<"outer 2: "<<v2.X<<" "<<v2.Y<<" "<<v2.Z<<endl;
+        cout<<"outer 3: "<<v3.X<<" "<<v3.Y<<" "<<v3.Z<<endl;
+        cout<<"outer 4: "<<v4.X<<" "<<v4.Y<<" "<<v4.Z<<endl;
         cout<<"Tetrahedron: "<<tetras[0].o.X<<" "<<tetras[0].o.Y<<" "<<tetras[0].o.Z<<" r: "<<tetras[0].r<<endl;
         
         // 幾何形状を動的に変化させるための一時リスト
         vector<Tetrahedron> tmpTList;
         vector<Tetrahedron> newTList;
         vector<Tetrahedron> removeTList;
+
         cout<<"======[start]======"<<endl;
-        for(int zz = 0; zz<seq.size(); zz++) {
-        	Vector3 v = seq[zz];
-            cout<<"-->Point "<<zz<<": "<<v.X<<" "<<v.Y<<" "<<v.Z<<endl;
-            cout<<"---->tetras size: "<<tetras.size()<<endl;
+
+        for (int i=0; i<seq.size(); i++) {
+            Vector3 v = seq[i];
             tmpTList.clear();
             newTList.clear();
             removeTList.clear();
-            for (int j = 0; j<tetras.size(); j++){
-            	Tetrahedron t = tetras[j];
-                cout<<"------>r: "<<t.r<<" dist: "<<v.Distancef(&t.o)<<endl;
-                if((t.r != -1) && (t.r > v.Distancef(&t.o))) {//NULL
-                    tmpTList.push_back(t);
-                    cout<<"------>tmpTList add"<<endl;
-                }
+
+            for (int t=0; t<tetras.size(); t++) {
+                if(tetras[t].r != -1 && tetras[t].r > v.Distancef(&tetras[t].o))
+                    tmpTList.push_back(tetras[t]);
             }
-            for (int j = 0; j<tmpTList.size(); j++){
-            	Tetrahedron t1 = tmpTList[j];
-                // まずそれらを削除
-                //tetras.remove(t1);
-                tetras.erase(tetras.begin()+j);
-                cout<<"------>tetras erase"<<endl;
+
+            for (int t=0; t<tmpTList.size(); t++) {
+                Tetrahedron t1 = tmpTList[t];
+                removeTetras(tetras, t1);
                 v1 = t1.vertices[0];
                 v2 = t1.vertices[1];
                 v3 = t1.vertices[2];
@@ -130,60 +123,58 @@ public:
                 newTList.push_back(Tetrahedron(v1, v3, v4, v));
                 newTList.push_back(Tetrahedron(v2, v3, v4, v));
             }
-            bool isRedundancy[newTList.size()];
-            for (int i = 0; i < newTList.size(); i++) 
-            	isRedundancy[i] = false;
-            for (int i = 0; i < newTList.size(); i++) {
-                for (int j = i+1; j < newTList.size(); j++) {
-                    if(newTList[i].equals(newTList[j])) {
-                        isRedundancy[i] = true;
-                        isRedundancy[j] = true;
-                    }
-                }
-            }
-            cout<<"---->newTList size: "<<newTList.size()<<". tmpTList size: "<<tmpTList.size()<<endl;
-            for (int i = 0; i < newTList.size(); i++) {
-                if (!isRedundancy[i]) {
-                    tetras.push_back(newTList[i]);
-                }
-            }
-            cout<<"---->tetras new size: "<<tetras.size()<<endl;
 
+            bool isRedundancy[newTList.size()];
+            for (int ii = 0; ii < newTList.size(); ii++) 
+                isRedundancy[ii] = false;
+            for (int ii = 0; ii< newTList.size(); ii++) 
+                for (int jj = ii+1; jj < newTList.size(); jj++) 
+                    if(newTList[ii].equals(newTList[jj])) {
+                        isRedundancy[ii] = true;
+                        isRedundancy[jj] = true;
+                    }
+            
+            for (int ii = 0; ii < newTList.size(); ii++) {
+                if (!isRedundancy[ii]) {
+                    tetras.push_back(newTList[ii]);
+                }
+            }
         }
+       
         cout<<"======[end]======"<<endl;
-        cout<<"stage"<<endl;
+       
+        cout<<"stage1"<<endl;       
+        cout << "outer size: " << outer.size() << endl;
         bool isOuter = false;
         for (int i = 0; i<tetras.size(); i++) {
-        	Tetrahedron t4 = tetras[i];
+            Tetrahedron t4 = tetras[i];
             isOuter = false;
             for (int j = 0; j<t4.vertices.size(); j++) {
-            	Vector3 p1 = t4.vertices[j];
+                Vector3 p1 = t4.vertices[j];
                 for (int k = 0; k<outer.size(); k++) {
-                	Vector3 p2 = outer[k];
+                    Vector3 p2 = outer[k];
                     if (p1.X == p2.X && p1.Y == p2.Y && p1.Z == p2.Z) {
                         isOuter = true;//true;
                     }
                 }
             }
             if (isOuter) {
-                //tetras.remove(t4);
-                cout<<"remove!!!"<<endl;
-                cout<<i<<" "<<tetras.size()<<endl;
-                tetras.erase(tetras.begin()+i);
+                cout << "tetras size: " << tetras.size() << endl;
+                removeTetras(tetras, t4);
                 i--;
             }
-            cout<<i<<" "<<tetras.size()<<endl;
         }
-        cout<<"stage"<<endl;
+
+        cout<<"stage2"<<endl;
         triangles.clear();
         bool isSame = false;
         for (int i = 0; i<tetras.size(); i++) {
         	Tetrahedron t = tetras[i];
             for (int j = 0; j<t.getLines().size(); j++) {
-            	Line l1 = t.getLines()[j];
+                Line l1 = t.getLines()[j];
                 isSame = false;
                 for (int k = 0; k<edges.size(); k++) {
-                	Line l2 = edges[k];
+                    Line l2 = edges[k];
                     if (l2.equals(l1)) {
                         isSame = true;
                         break;
@@ -195,27 +186,26 @@ public:
             }
         }
 
-        // ===
         // 面を求める
-        cout<<"stage"<<endl;
+        cout<<"stage3"<<endl;
         vector<Triangle> triList;
         for (int i = 0; i<tetras.size(); i++) {
-        	Tetrahedron t = tetras[i];
+            Tetrahedron t = tetras[i];
             v1 = t.vertices[0];
             v2 = t.vertices[1];
             v3 = t.vertices[2];
             v4 = t.vertices[3];
 
+            printf("======================\n");
+            printf("%f %f %f\n", v1.X, v1.Y, v1.Z);
+            printf("%f %f %f\n", v2.X, v2.Y, v2.Z);
+            printf("%f %f %f\n", v3.X, v3.Y, v3.Z);
+            printf("%f %f %f\n", v4.X, v4.Y, v4.Z);
+
             Triangle tri1 = Triangle(v1, v2, v3);
             Triangle tri2 = Triangle(v1, v3, v4);
             Triangle tri3 = Triangle(v1, v4, v2);
             Triangle tri4 = Triangle(v4, v3, v2);
-
-            cout<<"====== Tetrahedron "<<i<<endl;
-            cout<<v1.X<<" "<<v1.Y<<" "<<v1.Z<<endl;
-            cout<<v2.X<<" "<<v2.Y<<" "<<v2.Z<<endl;
-            cout<<v3.X<<" "<<v3.Y<<" "<<v3.Z<<endl;
-            cout<<v4.X<<" "<<v4.Y<<" "<<v4.Z<<endl;
 
             Vector3 n;
             // 面の向きを決める
@@ -236,41 +226,55 @@ public:
             triList.push_back(tri3);
             triList.push_back(tri4);
         }
-        cout<<"stage"<<endl;
+        cout<<"stage4"<<endl;
         bool isSameTriangle[triList.size()];
-        for(int i = 0; i < triList.size(); i++) {
+        for(int i = 0; i < triList.size()-1; i++) {
             for(int j = i+1; j < triList.size(); j++) {
-                if (triList[i].equals(triList[j])) isSameTriangle[i] = true;
+                if (triList[i].equals(triList[j])) {
+                    isSameTriangle[i] = false;
+                    isSameTriangle[j] = true;
+                }
             }
         }
         for(int i = 0; i < triList.size(); i++) {
-            if (!isSameTriangle[i]) triangles.push_back(triList[i]);
+            if (!isSameTriangle[i]) 
+                triangles.push_back(triList[i]);
         }
-        cout<<"stage"<<endl;
+
+        cout<<"stage5"<<endl;
         surfaceEdges.clear();
         vector<Line> surfaceEdgeList;
         for(int i = 0; i < triangles.size(); i++) {
         	Triangle tri = triangles[i];
-        	for (int j = 0; j < tri.getLines().size(); j++){
-        		surfaceEdgeList.push_back(tri.getLines()[j]);
+        	for (int j = 0; j < tri.getLines().size(); j++) {
+        	   surfaceEdgeList.push_back(tri.getLines()[j]);
         	}
         }
-        cout<<"stage"<<endl;
+        cout<<"stage6"<<endl;
         bool isRedundancy[surfaceEdgeList.size()];
         for(int i = 0; i < surfaceEdgeList.size()-1; i++) {
             for (int j = i+1; j < surfaceEdgeList.size(); j++) {
-                if (surfaceEdgeList[i].equals(surfaceEdgeList[j])) isRedundancy[j] = true;
+                if (surfaceEdgeList[i].equals(surfaceEdgeList[j])) 
+                    isRedundancy[j] = true;
             }
         }
-        cout<<"stage"<<endl;
+        cout<<"stage7"<<endl;
         for (int i = 0; i < surfaceEdgeList.size(); i++) {
-            if (!isRedundancy[i]) surfaceEdges.push_back(surfaceEdgeList[i]);
+            if (!isRedundancy[i]) 
+                surfaceEdges.push_back(surfaceEdgeList[i]);
         }
-        cout<<"stage"<<endl;
+        cout<<"stage8"<<endl;
     }
-private:
-    void vecRemove(){
 
+private:
+    void removeTetras(vector<Tetrahedron>& tetras, Tetrahedron t) {
+        vector<Tetrahedron>::iterator it;
+        for (it = tetras.begin(); it != tetras.end(); ) {
+            if ((*it).equals(t))
+                it = tetras.erase(it);
+            else
+                it++;
+        }
     }
 };
 #endif

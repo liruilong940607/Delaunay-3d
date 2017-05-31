@@ -84,7 +84,7 @@ private:
         };
         double x[3];
         if (gauss(A, b, x) == 0) {
-            //o = NULL;
+            // o = NULL;
             r = -1;
         } else {
             o = Vector3((float)x[0], (float)x[1], (float)x[2]);
@@ -118,14 +118,18 @@ private:
             }
             int ik = ip[m];
             if (m != k) {
-                ip[m] = ip[k]; ip[k] = ik;
+                ip[m] = ip[k];
+                ip[k] = ik;
                 det = -det;
             }
-            u = a[ik][k]; det *= u;
+            u = a[ik][k]; 
+            det *= u;
             if (u == 0) return 0;
             for (int i = k+1; i < n; i++) {
-                int ii = ip[i]; double t = (a[ii][k] /= u);
-                for(int j = k+1; j < n; j++) a[ii][j] -= t * a[ik][j];
+                int ii = ip[i]; 
+                double t = (a[ii][k] /= u);
+                for(int j = k+1; j < n; j++) 
+                    a[ii][j] -= t * a[ik][j];
             }
         }
         return det;
@@ -134,12 +138,15 @@ private:
         int n = 3;//a.length;
         for(int i = 0; i < n; i++) {
             int ii = ip[i]; double t = b[ii];
-            for (int j = 0; j < i; j++) t -= a[ii][j] * x[j];
+            for (int j = 0; j < i; j++) 
+                t -= a[ii][j] * x[j];
             x[i] = t;
         }
         for (int i = n-1; i >= 0; i--) {
-            double t = x[i]; int ii = ip[i];
-            for(int j = i+1; j < n; j++) t -= a[ii][j] * x[j];
+            double t = x[i]; 
+            int ii = ip[i];
+            for(int j = i+1; j < n; j++) 
+                t -= a[ii][j] * x[j];
             x[i] = t / a[ii][i];
         }
     }
@@ -148,7 +155,9 @@ private:
         int ip[n];
         double det = lu(a, ip);
 
-        if(det != 0) { solve(a, b, ip, x);}
+        if(det != 0) {
+            solve(a, b, ip, x);
+        }
         return det;
     }
 };
