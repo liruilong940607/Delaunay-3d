@@ -13,7 +13,11 @@ void Update();
 void Reshape (int w, int h);
 void Wheel(int wheel, int direction, int x, int y);
 
-int main_main(int argc, char** argv){
+void Mouse(int button,int state,int x,int y){
+  a.Mouse(button, state, x, y);
+}
+
+int main(int argc, char** argv){
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
@@ -26,7 +30,7 @@ int main_main(int argc, char** argv){
     glutIdleFunc(Update);
     glutKeyboardFunc(Input);
     glutReshapeFunc(Reshape);
-    glutMouseWheelFunc(Wheel);
+    glutMouseFunc(Mouse);
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
@@ -39,9 +43,6 @@ int main_main(int argc, char** argv){
     return EXIT_SUCCESS;
 }
 
-void Wheel(int wheel, int direction, int x, int y){
-    a.Zoom(direction);
-}
 
 void Input(unsigned char key, int x, int y){
     a.Input(key, x, y);

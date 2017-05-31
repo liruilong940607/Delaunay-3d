@@ -7,7 +7,7 @@ Application::Application(){
     relativeX = 0;
     wireframe = false;
     turnSpeed = 0.5f;
-    zoomSpeed = 0.5f;
+    zoomSpeed = 0.05f;
 }
 
 Application::~Application(){
@@ -19,8 +19,34 @@ void Application::Init(){
     cube.Init();
 }
 
+void Application::Mouse(int button,int state,int x,int y){
+    switch(button){
+        case GLUT_LEFT_BUTTON: 
+            printf("[Mouse] GLUT_LEFT_BUTTON\n");
+            break;
+        case GLUT_MIDDLE_BUTTON: 
+            printf("[Mouse] GLUT_MIDDLE_BUTTON\n");
+            break;
+        case GLUT_RIGHT_BUTTON: 
+            printf("[Mouse] GLUT_RIGHT_BUTTON\n");
+            break;
+        case GLUT_WHEEL_UP: 
+            printf("[Mouse] GLUT_WHEEL_UP\n");
+            radius = std::max(radius-zoomSpeed,1.0f);
+            break;
+        case GLUT_WHEEL_DOWN: 
+            printf("[Mouse] GLUT_WHEEL_DOWN\n");
+            radius += zoomSpeed;
+            break;
+        default: 
+            break;
+    }
+}
+
+
 void Application::Zoom(int direction){
     radius += direction*zoomSpeed;
+    printf("zoom: %d\n", direction);
 }
 
 void Application::Input(unsigned char key, int x, int y){

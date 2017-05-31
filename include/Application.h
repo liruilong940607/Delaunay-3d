@@ -6,7 +6,9 @@
 #include "GameObject.h"
 #include "Cube.h"
 
-#define M_PI        3.14159265358979323846264338327950288   /* pi */
+#define  M_PI        3.14159265358979323846264338327950288   /* pi */
+#define  GLUT_WHEEL_UP 3           //定义滚轮操作  
+#define  GLUT_WHEEL_DOWN 4  
 
 class Application: public IGameObject{
 private:
@@ -26,6 +28,9 @@ public:
     virtual void Draw();
     void Zoom(int direction);
     void Input(unsigned char key, int x, int y);
+    void Mouse(int button,int state,int x,int y);
+
+
 };
 
 #endif

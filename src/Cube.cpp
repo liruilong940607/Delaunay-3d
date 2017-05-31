@@ -4,7 +4,7 @@ float random(float start, float end){
     return float(start+(end-start)*rand()/(RAND_MAX + 1.0));
 }
 Cube::Cube(){
-    this->delaunayPointsCount = 100;
+    this->delaunayPointsCount = 6;
     this->delaunayPointsArray = NULL;
 }
 
