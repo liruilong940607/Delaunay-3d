@@ -4,7 +4,7 @@ float random(float start, float end){
     return float(start+(end-start)*rand()/(RAND_MAX + 1.0));
 }
 Cube::Cube(){
-    this->delaunayPointsCount = 5;
+    this->delaunayPointsCount = 100;
     this->delaunayPointsArray = NULL;
 }
 
@@ -28,24 +28,26 @@ void Cube::Init(){
         Vector3 v1 = d.triangles[i].v1;
         Vector3 v2 = d.triangles[i].v2;
         Vector3 v3 = d.triangles[i].v3;
-        cout<<"======"<<endl;
-        cout<<" "<<v1.X <<" "<<v1.Y<<" "<<v1.Z<<endl;
-        cout<<" "<<v2.X <<" "<<v2.Y<<" "<<v2.Z<<endl;
-        cout<<" "<<v3.X <<" "<<v3.Y<<" "<<v3.Z<<endl;
-        cout<<"======"<<endl;
         tri_data[i*3*3+0] = v1.X; tri_data[i*3*3+1] = v1.Y;  tri_data[i*3*3+2] = v1.Z;
         tri_data[i*3*3+3] = v2.X; tri_data[i*3*3+4] = v2.Y;  tri_data[i*3*3+5] = v2.Z;
         tri_data[i*3*3+6] = v3.X; tri_data[i*3*3+7] = v3.Y;  tri_data[i*3*3+8] = v3.Z;
-    }
 
+    }
+    printf("%d\n", d.tetras.size());
+    printf("%d\n", d.triangles.size());
     glGenBuffers(1, &VertexArrayID);
     glBindBuffer(GL_ARRAY_BUFFER, VertexArrayID);
-    glBufferData(GL_ARRAY_BUFFER, d.triangles.size()*3*3*4, tri_data, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, d.triangles.size()*3*3*sizeof(GLfloat), tri_data, GL_STATIC_DRAW);
 
 }
 
 void Cube::Draw(){
     
+    glPushMatrix();
+    glTranslatef(d.tetras[0].o.X,d.tetras[0].o.Y,d.tetras[0].o.Z);
+    glutWireSphere(d.tetras[0].r, 20, 20);
+    glPopMatrix();
+
     glBindBuffer(GL_ARRAY_BUFFER, VertexArrayID);
     glEnableVertexAttribArray(0);
     glVertexAttribPointer(0,// attribute 0. No particular reason for 0, but must match the layout in the shader.
@@ -54,7 +56,7 @@ void Cube::Draw(){
         GL_FALSE,           // normalized?
         0,                  // stride
         (void*)0);
-    glDrawArrays(GL_TRIANGLES, 0, d.triangles.size()*3);//12 // Starting from vertex 0; 3 vertices total -> 1 triangle
+    glDrawArrays(GL_TRIANGLES, 0, this->d.triangles.size()*3*3);//12 // Starting from vertex 0; 3 vertices total -> 1 triangle
     glDisableVertexAttribArray(0);
 
     glBindBuffer(GL_ARRAY_BUFFER, PointsArrayID);
@@ -74,21 +76,21 @@ void Cube::Update(double deltaTime){
 }
 void Cube::SetPointsDelaunay(){
     vector<Vector3> vec;
-    // for (int i = 0; i < this->delaunayPointsCount; i++) {
-    //   float r = random(0.0, 2.0f);
-    //   float phi = random(-90, 90)/180.0*PI;
-    //   float theta = random(0, 360)/180.0*PI;
-    //   vec.push_back(Vector3(
-    //     float(r*cos(phi)*cos(theta)), 
-    //     float(r*sin(phi)), 
-    //     float(r*cos(phi)*sin(theta))));
-    // }
-    vec.push_back(Vector3(-1.0f,-1.0f,0.0f));
-    vec.push_back(Vector3(1.0f,-1.0f,0.0f));
-    vec.push_back(Vector3(-1.0f,1.0f,0.0f));
-    vec.push_back(Vector3(0.0f,0.0f,1.0f));
-    vec.push_back(Vector3(1.0f,1.0f,0.0f));
-    //vec.push_back(Vector3(0.0f,0.0f,-1.0f));
+    for (int i = 0; i < this->delaunayPointsCount; i++) {
+      float r = random(0.0, 2.0f);
+      float phi = random(-90, 90)/180.0*PI;
+      float theta = random(0, 360)/180.0*PI;
+      vec.push_back(Vector3(
+        float(r*cos(phi)*cos(theta)), 
+        float(r*sin(phi)), 
+        float(r*cos(phi)*sin(theta))));
+    }
+    // vec.push_back(Vector3(1.0f, 0.0f, 0.0f));
+    // vec.push_back(Vector3(-1.0f, 0.0f, 0.0f));
+    // vec.push_back(Vector3(0.0f, 0.5f, 0.0f));
+    // vec.push_back(Vector3(0.0f, -0.5f, 0.0f));
+    // vec.push_back(Vector3(0.0f, 0.0f, 1.0f));
+    // vec.push_back(Vector3(0.0f, 0.0f, -1.0f));
     d.SetData(vec);
 
     this->delaunayPoints.clear();
@@ -102,7 +104,6 @@ void Cube::SetPointsDelaunay(){
         this->delaunayPointsArray[i*3+1] = point.Y;
         this->delaunayPointsArray[i*3+2] = point.Z;
     }
-    
     glBindBuffer(GL_ARRAY_BUFFER, this->PointsArrayID);
     glBufferData(GL_ARRAY_BUFFER, sizeof(GLfloat)*this->delaunayPointsCount*3, this->delaunayPointsArray, GL_DYNAMIC_DRAW);
 }

@@ -9,6 +9,7 @@
 #include "Line.h"
 #include <vector>
 using namespace std;
+
 class Triangle {
 public:
     Vector3 v1, v2, v3;
@@ -22,7 +23,7 @@ public:
         Vector3 edge2 = Vector3(v3.X-v1.X, v3.Y-v1.Y, v3.Z-v1.Z);
 
         Vector3 normal = edge1.cross(edge2);
-        normal.Normalize();
+        normal.normalize();
         return normal;
     }
 
@@ -53,7 +54,6 @@ public:
         }
         if (cnt == 3) return true;
         else return false;
-
     }
 };
 #endif

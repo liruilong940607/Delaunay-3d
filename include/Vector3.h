@@ -13,7 +13,7 @@ class Vector3{
 		
 		float X;
 		float Y;
-        float Z;
+        		float Z;
 
 		int Distance(Vector3 *);
 		float Distancef(Vector3 *);
@@ -24,12 +24,12 @@ class Vector3{
 		Vector3 operator+= (Vector3);
 		Vector3 operator* (Vector3);
 		Vector3 operator* (float);
+        
         Vector3 operator* (int);
-
-        Vector3 cross(Vector3);
+        Vector3 cross(Vector3 v);
         float dot(Vector3);
         bool operator== (Vector3);
 
-		Vector3 Rand_Vector( float, float );
+        Vector3 normalize();  // used in deluanay 
 };
 #endif

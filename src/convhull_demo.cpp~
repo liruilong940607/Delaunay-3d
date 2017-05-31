@@ -9,7 +9,7 @@
 
 using namespace std;
 
-int main_convhull() {
+int main() {
 	srand((unsigned)time(0));
 
 	Vector3 s[6] = {Vector3(1,0,0),Vector3(0,1,0),
