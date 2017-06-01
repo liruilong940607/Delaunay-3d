@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui opengl
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -38,3 +38,4 @@ HEADERS  += widget.h \
     voronoi-3d/include/point_sets.h
 
 INCLUDEPATH += voronoi-3d/include
+LIBS += -lglut -lGLU

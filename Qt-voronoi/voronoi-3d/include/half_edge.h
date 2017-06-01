@@ -50,6 +50,11 @@ public:
 		a[2]=one_edge->succ->v->id;
 		return a;
 	}
+	void reverse() {
+		int v = one_edge->succ->v->id;
+		one_edge->succ->v->id=one_edge->pred->v->id;
+		one_edge->pred->v->id=v;
+	}
 };
 
 
