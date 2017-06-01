@@ -1,1 +1,0 @@
-/home/dalong/Workspace/CG-Voronoi/My-voronoi-3d/CMakeFiles/voronoi-3d.dir
