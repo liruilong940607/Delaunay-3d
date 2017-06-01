@@ -5,26 +5,49 @@ float random(float start, float end){
 }
 Cube::Cube()
 {
-    delaunayPointsCount = 20;
+    delaunayPointsCount = 5;
     m_count = 0;
 
-    std::vector<Vector3> vec = SetPointsDelaunay();
+    vec = SetPointsDelaunay();
     printf("setdata\n");
-    //d.SetData(vec);
+    d.SetData(vec);
     printf("setdata done\n");
-//    m_data.resize(d.triangles.size() * 3 * 6);
-//    for (int i = 0; i < d.triangles.size(); ++i)
-//    {
-//        Vector3 v1 = d.triangles[i].v1;
-//        Vector3 v2 = d.triangles[i].v2;
-//        Vector3 v3 = d.triangles[i].v3;
-//        Vector3 norm = d.triangles[i].getNormal();
-//        add(v1, norm);
-//        add(v2, norm);
-//        add(v3, norm);
-//        printf("triangle index: %d %d %d\n",v1.getindex(),v2.getindex(),v3.getindex());
-//    }
+}
 
+void Cube::set_paint_points(){
+    m_data.clear();
+    m_count = 0;
+    m_data.resize(d.triangles.size() * 3 * 6);
+    for (int i = 0; i < d.triangles.size(); ++i)
+    {
+       Vector3 v1 = d.triangles[i].v1;
+       Vector3 v2 = d.triangles[i].v2;
+       Vector3 v3 = d.triangles[i].v3;
+       add(v1);
+       add(v2);
+       add(v3);
+       printf("triangle index: %d %d %d\n",v1.getindex(),v2.getindex(),v3.getindex());
+    }
+}
+void Cube::set_paint_delauny(){
+    m_data.clear();
+    m_count = 0;
+    m_data.resize(d.triangles.size() * 3 * 6);
+    for (int i = 0; i < d.triangles.size(); ++i)
+    {
+       Vector3 v1 = d.triangles[i].v1;
+       Vector3 v2 = d.triangles[i].v2;
+       Vector3 v3 = d.triangles[i].v3;
+       add(v1);
+       add(v2);
+       add(v3);
+       printf("triangle index: %d %d %d\n",v1.getindex(),v2.getindex(),v3.getindex());
+    }
+}
+void Cube::set_paint_voronoi_vertics(){}
+void Cube::set_paint_voronoi_cell(){
+    m_data.clear();
+    m_count = 0;
     /*
      * test quickhull
      */
@@ -33,6 +56,7 @@ Cube::Cube()
     m_data.resize(quickhull_index.size() * 3 * 6);
     for (int i = 0; i < quickhull_index.size(); ++i)
     {
+        printf("result ==>>>>%d %d %d\n", quickhull_index[i][0],quickhull_index[i][1],quickhull_index[i][2]);
         Vector3 v1 = vec[quickhull_index[i][0]];
         Vector3 v2 = vec[quickhull_index[i][1]];
         Vector3 v3 = vec[quickhull_index[i][2]];
@@ -41,8 +65,8 @@ Cube::Cube()
         add(v2, norm);
         add(v3, norm);
     }
-
 }
+void Cube::set_paint_voronoi_cell_all(){}
 
 std::vector<Vector3> Cube::SetPointsDelaunay(){
     std::vector<Vector3> vec;
@@ -75,5 +99,16 @@ void Cube::add(const Vector3 &v, const Vector3 &n)
     *p++ = n.X;
     *p++ = n.Y;
     *p++ = n.Z;
+    m_count += 6;
+}
+void Cube::add(const Vector3 &v)
+{
+    GLfloat *p = m_data.data() + m_count;
+    *p++ = v.X;
+    *p++ = v.Y;
+    *p++ = v.Z;
+    *p++ = 0;
+    *p++ = 0;
+    *p++ = 0;
     m_count += 6;
 }

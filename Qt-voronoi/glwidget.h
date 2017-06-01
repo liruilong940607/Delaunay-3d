@@ -62,7 +62,18 @@ private:
     QMatrix4x4 m_world;
     bool m_transparent;
 
+    // control
     bool wireframe;
+    bool F1_start;
+    bool F2_start;
+    bool F3_start;
+    bool F4_start;
+    bool F5_start;
+    void paint_points();
+    void paint_delauny();
+    void paint_voronoi_vertics();
+    void paint_voronoi_cell();
+    void paint_voronoi_cell_all();
 
 };
 

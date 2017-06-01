@@ -21,6 +21,11 @@ GLWidget::GLWidget(QWidget *parent)
         setFormat(fmt);
     }
     wireframe = false;
+    F1_start = false;
+    F2_start = false;
+    F3_start = false;
+    F4_start = false;
+    F5_start = false;
 }
 
 GLWidget::~GLWidget()
@@ -135,7 +140,7 @@ static const char *fragmentShaderSource =
     "void main() {\n"
     "   highp vec3 L = normalize(lightPos - vert);\n"
     "   highp float NL = max(dot(normalize(vertNormal), L), 0.0);\n"
-    "   highp vec3 color = vec3(0.39, 1.0, 0.0);\n"
+    "   highp vec3 color = vec3(0.88, 1.0, 0.0);\n"
     "   highp vec3 col = clamp(color * 0.2 + color * 0.8 * NL, 0.0, 1.0);\n"
     "   gl_FragColor = vec4(col, 1.0);\n"
     "}\n";
@@ -157,9 +162,9 @@ void GLWidget::initializeGL()
     m_program = new QOpenGLShaderProgram;
     m_program->addShaderFromSourceCode(QOpenGLShader::Vertex, m_core ? vertexShaderSourceCore : vertexShaderSource);
     m_program->addShaderFromSourceCode(QOpenGLShader::Fragment, m_core ? fragmentShaderSourceCore : fragmentShaderSource);
-    m_program->bindAttributeLocation("vertex", 0);
-    m_program->bindAttributeLocation("normal", 1);
-    m_program->link();
+    //m_program->bindAttributeLocation("vertex", 0);
+    //m_program->bindAttributeLocation("normal", 1);
+    //m_program->link();
 
     m_program->bind();
     m_projMatrixLoc = m_program->uniformLocation("projMatrix");
@@ -174,13 +179,7 @@ void GLWidget::initializeGL()
     m_vao.create();
     QOpenGLVertexArrayObject::Binder vaoBinder(&m_vao);
 
-    // Setup our vertex buffer object.
     m_cubeVbo.create();
-    m_cubeVbo.bind();
-    m_cubeVbo.allocate(m_cube.constData(), m_cube.count() * sizeof(GLfloat));
-
-    // Store the vertex attribute bindings for the program.
-    setupVertexAttribs();
 
     // Our camera never changes in this example.
     m_camera.setToIdentity();
@@ -194,23 +193,12 @@ void GLWidget::initializeGL()
 
 void GLWidget::setupVertexAttribs()
 {
-    m_cubeVbo.bind();
-    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
-    f->glEnableVertexAttribArray(0);
-    f->glEnableVertexAttribArray(1);
-    f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
-    f->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void *>(3 * sizeof(GLfloat)));
-    m_cubeVbo.release();
+
 }
 
 void GLWidget::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    if(wireframe){
-        glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-    }else{
-        glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-    }
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
@@ -226,10 +214,88 @@ void GLWidget::paintGL()
     QMatrix3x3 normalMatrix = m_world.normalMatrix();
     m_program->setUniformValue(m_normalMatrixLoc, normalMatrix);
 
-    glDrawArrays(GL_TRIANGLES, 0, m_cube.vertexCount());
+    if (F1_start) // show points
+        paint_points();
+    if (F2_start) // show delauny
+        paint_delauny();
+    if (F3_start) // show voronoi vertics
+        paint_voronoi_vertics();
+    if (F4_start) // show voronoi cell
+        paint_voronoi_cell();
+    if (F5_start) // show voronoi all cells
+        paint_voronoi_cell_all();
 
     m_program->release();
 }
+void GLWidget::paint_points(){
+    // Setup our vertex buffer object.
+    m_cube.set_paint_delauny();
+    m_cubeVbo.bind();
+    m_cubeVbo.allocate(m_cube.constData(), m_cube.count() * sizeof(GLfloat));
+
+    // Store the vertex attribute bindings for the program.
+    m_cubeVbo.bind();
+    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+    f->glEnableVertexAttribArray(0);
+    f->glEnableVertexAttribArray(1);
+    f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
+    f->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void *>(3 * sizeof(GLfloat)));
+    m_cubeVbo.release();
+
+    glPointSize(9.0f);
+    glDrawArrays(GL_POINTS, 0, m_cube.count());
+    f->glDisableVertexAttribArray(0);
+    f->glDisableVertexAttribArray(1);
+}
+const GLfloat gColors[] = {  
+    1.0f,0.0f,0.0f, 1.0f,  
+    0.0f,1.0f,0.0f, 1.0f,  
+    0.0f,0.0f,1.0f, 1.0f,  
+}; 
+void GLWidget::paint_delauny(){
+    // Setup our vertex buffer object.
+    m_cube.set_paint_delauny();
+    m_cubeVbo.bind();
+    m_cubeVbo.allocate(m_cube.constData(), m_cube.count() * sizeof(GLfloat));
+
+    // Store the vertex attribute bindings for the program.
+    m_cubeVbo.bind();
+    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+    f->glEnableVertexAttribArray(0);
+    f->glEnableVertexAttribArray(1);
+    f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
+    f->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void *>(3 * sizeof(GLfloat)));
+    m_cubeVbo.release();
+
+    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+    glDrawArrays(GL_TRIANGLES, 0, m_cube.vertexCount());
+    f->glDisableVertexAttribArray(0);
+    f->glDisableVertexAttribArray(1);
+}
+void GLWidget::paint_voronoi_vertics(){
+
+}
+void GLWidget::paint_voronoi_cell(){
+    // Setup our vertex buffer object.
+    m_cube.set_paint_voronoi_cell();
+    m_cubeVbo.bind();
+    m_cubeVbo.allocate(m_cube.constData(), m_cube.count() * sizeof(GLfloat));
+
+    // Store the vertex attribute bindings for the program.
+    m_cubeVbo.bind();
+    QOpenGLFunctions *f = QOpenGLContext::currentContext()->functions();
+    f->glEnableVertexAttribArray(0);
+    f->glEnableVertexAttribArray(1);
+    f->glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), 0);
+    f->glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), reinterpret_cast<void *>(3 * sizeof(GLfloat)));
+    m_cubeVbo.release();
+
+    glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+    glDrawArrays(GL_TRIANGLES, 0, m_cube.vertexCount());
+    f->glDisableVertexAttribArray(0);
+    f->glDisableVertexAttribArray(1);
+}
+void GLWidget::paint_voronoi_cell_all(){}
 
 void GLWidget::resizeGL(int w, int h)
 {
@@ -260,6 +326,24 @@ void GLWidget::mouseMoveEvent(QMouseEvent *event)
 void GLWidget::keyPressEvent(QKeyEvent *event){
     switch (event->key())  {
         case Qt::Key_F1:
+            F1_start = !F1_start; // show points
+            update();
+            break;
+        case Qt::Key_F2:
+            F2_start = !F2_start; // show delauny
+            update();
+            break;
+        case Qt::Key_F3:
+            F3_start = !F3_start; // show voronoi vertics
+            update();
+            break;
+        case Qt::Key_F4:
+            F4_start = !F4_start; // show voronoi cell
+            update();
+            break;
+        case Qt::Key_F5:
+            F5_start = !F5_start; // show voronoi all cells
+            update();
             break;
         case Qt::Key_Escape:
             close();

@@ -21,13 +21,19 @@ public:
     int vertexCount() const { return m_count / 3; }
 
     Delaunay d;
-
+    void set_paint_points();
+    void set_paint_delauny();
+    void set_paint_voronoi_vertics();
+    void set_paint_voronoi_cell();
+    void set_paint_voronoi_cell_all();
 private:
     std::vector<Vector3> SetPointsDelaunay();
     void add(const Vector3 &v, const Vector3 &n);
+    void add(const Vector3 &v);
     QVector<GLfloat> m_data;
     int m_count;
     int delaunayPointsCount;
+    std::vector<Vector3> vec;
 
 };
 

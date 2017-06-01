@@ -26,17 +26,29 @@ bool PointSets3D::find_farest( array<int,3> pnt, int &max_id ) {
 	// find farest point from Face *tri, marked with max_id
 	float d, dmax; 
 	dmax = -1; max_id = 0;
+    for ( int j=0; j<S_id.size(); j++ ) {
+        printf("All points in S_id: %d\n", S_id[j]);
+    }
 	for ( int j=0; j<S_id.size(); j++ ) {
 		if ( S_id[j]==pnt[0] || // those points should not be vertices of tri
 			 S_id[j]==pnt[1] ||
-			 S_id[j]==pnt[2] ) {}
+             S_id[j]==pnt[2] ) {
+            if(pnt[0]==3 && pnt[1]==4 && pnt[2]==1){
+                printf("[check]here!");
+            }
+        }
 		else {
 			d = dist_p2plane( S[S_id[j]], S[pnt[0]], S[pnt[1]], S[pnt[2]] );
+            if(pnt[0]==3 && pnt[1]==4 && pnt[2]==1){
+                printf("[check]S_id: %d %f %f",S_id[j], d, dmax);
+            }
 			if (dmax<d) { dmax = d; max_id = j; }
 		}
 	}
+    printf("pnt: %d %d %d\n",pnt[0],pnt[1],pnt[2]);
+    if (!(dmax<0)) {printf("find!!!!%d\n",S_id[max_id]);return true;
 
-	if (!(dmax<0)) {return true;}
+    }
 
 	return false;
 }
@@ -113,19 +125,22 @@ void PointSets3D::kill_points( vector<Face*>& tris ) {
 	vector<array<int,3>> pnts;
 	for(int i=0;i<tris.size();i++) 
 		pnts.push_back(tris[i]->getVertex());
-
+    printf("before kill, S_id size is %d\n",S_id.size());
 	int k_cut = S_id.size(); int minus;
 	for(int k=0; k<k_cut;) {
+        printf("in kill, k = %d, k_cut = %d S_id[k] = %d\n",k,k_cut,S_id[k]);
 		minus = 0;
 		for(int i=0;i<pnts.size();i++) 
-			if (dist_p2plane( S[S_id[k]], S[pnts[i][0]], S[pnts[i][1]], S[pnts[i][2]] )<0)
+            if (dist_p2plane( S[S_id[k]], S[pnts[i][0]], S[pnts[i][1]], S[pnts[i][2]] )<0){
 				minus++;
+            }
+        printf("in kill, minus = %d\n",minus);
 		if (minus<pnts.size() && !exm_pnts[S_id[k]]) k++;
 		else {--k_cut; swap(k, k_cut); }// be careful to use --k
 	}
 	
 	S_id.resize( k_cut );
-
+    printf("after kill, S_id size is %d\n",S_id.size());
 }
 
 vector<int> PointSets3D::get_Extreme_pnts_id() {
