@@ -1,6 +1,8 @@
 #ifndef _VECTOR3_H
 #define _VECTOR3_H
 #include <cmath>
+#include <iostream>
+using namespace std;
 
 class Vector3{
 	public:
@@ -29,6 +31,8 @@ class Vector3{
         Vector3 cross(Vector3 v);
         float dot(Vector3);
         bool operator== (Vector3);
+        bool operator!= (Vector3);
+        friend ostream& operator << (ostream&, Vector3& v);
 
         Vector3 normalize();  // used in deluanay 
 };

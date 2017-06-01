@@ -16,7 +16,7 @@ class Tetrahedron {
 public:
     vector<Vector3> vertices;
     Vector3 o;      // 外接circle 中心
-    float   r;      // 外接circle 半径
+    float   r;          // 外接circle 半径
 
     Tetrahedron(vector<Vector3> v) {
         this->vertices = v;
@@ -35,38 +35,70 @@ public:
 
     bool equals(Tetrahedron t) {
         int count = 0;
-        for (int i = 0; i<this->vertices.size(); i++) {
-        	Vector3 p1 = this->vertices[i];
-            for (int j = 0; j<t.vertices.size(); j++) {
-            	Vector3 p2 = t.vertices[j];
-                if (p1.X == p2.X && p1.Y == p2.Y && p1.Z == p2.Z) {
+        for (int i = 0; i<this->vertices.size(); i++) 
+            for (int j = 0; j<t.vertices.size(); j++) 
+                if (this->vertices[i] == t.vertices[j]) 
                     count++;
-                }
-            }
-        }
         if (count == 4) return true;
         return false;
     }
 
     vector<Line> getLines() {
+        vector<Line> lines;
+        lines.push_back(Line(vertices[0], vertices[1]));
+        lines.push_back(Line(vertices[0], vertices[2]));
+        lines.push_back(Line(vertices[0], vertices[3]));
+        lines.push_back(Line(vertices[1], vertices[2]));
+        lines.push_back(Line(vertices[1], vertices[3]));
+        lines.push_back(Line(vertices[2], vertices[3]));
+        return lines;
+    }
+private:
+    // 四面体外接球
+    void getCenterCircumcircle() {
         Vector3 v1 = vertices[0];
         Vector3 v2 = vertices[1];
         Vector3 v3 = vertices[2];
         Vector3 v4 = vertices[3];
 
-        vector<Line> lines;
+        double A[][3] = {
+            {v2.X-v1.X, v2.Y-v1.Y, v2.Z-v1.Z},
+            {v3.X-v1.X, v3.Y-v1.Y, v3.Z-v1.Z},
+            {v4.X-v1.X, v4.Y-v1.Y, v4.Z-v1.Z}
+        };
+        double b[] = {
+            0.5 * (v2.X*v2.X - v1.X*v1.X + v2.Y*v2.Y - v1.Y*v1.Y + v2.Z*v2.Z - v1.Z*v1.Z),
+            0.5 * (v3.X*v3.X - v1.X*v1.X + v3.Y*v3.Y - v1.Y*v1.Y + v3.Z*v3.Z - v1.Z*v1.Z),
+            0.5 * (v4.X*v4.X - v1.X*v1.X + v4.Y*v4.Y - v1.Y*v1.Y + v4.Z*v4.Z - v1.Z*v1.Z)
+        };
+        double x[3];
+        
+        double det = (v2.X-v1.X) * (v3.Y-v1.Y) * (v4.Z-v1.Z) + (v3.X-v1.X) * (v4.Y-v1.Y) * (v2.Z-v1.Z) + (v4.X-v1.X) * (v2.Y-v1.Y) * (v3.Z-v1.Z) 
+        - (v2.X-v1.X) * (v4.Y-v1.Y) *(v3.Z-v1.Z) - (v3.X-v1.X) * (v2.Y-v1.Y) * (v4.Z-v1.Z) - (v4.X-v1.X) * (v3.Y-v1.Y) * (v2.Z-v1.Z);
 
-        lines.push_back(Line(v1, v2));
-        lines.push_back(Line(v1, v3));
-        lines.push_back(Line(v1, v4));
-        lines.push_back(Line(v2, v3));
-        lines.push_back(Line(v2, v4));
-        lines.push_back(Line(v3, v4));
-        return lines;
+        if (det == 0) {
+            r = -1;
+        }
+        else {
+            double A_inverse[][3] = {
+                {(v3.Y-v1.Y)*(v4.Z-v1.Z)-(v3.Z-v1.Z)*(v4.Y-v1.Y),  (v2.Z-v1.Z)*(v4.Y-v1.Y)-(v2.Y-v1.Y)*(v4.Z-v1.Z),  (v2.Y-v1.Y)*(v3.Z-v1.Z)-(v2.Z-v1.Z)*(v3.Y-v1.Y)},
+                {(v3.Z-v1.Z)*(v4.X-v1.X)-(v3.X-v1.X)*(v4.Z-v1.Z),  (v2.X-v1.X)*(v4.Z-v1.Z)-(v2.Z-v1.Z)*(v4.X-v1.X),  (v3.X-v1.X)*(v2.Z-v1.Z)-(v2.X-v1.X)*(v3.Z-v1.Z)},
+                {(v3.X-v1.X)*(v4.Y-v1.Y)-(v3.Y-v1.Y)*(v4.X-v1.X),  (v2.Y-v1.Y)*(v4.X-v1.X)-(v2.X-v1.X)*(v4.Y-v1.Y),  (v2.X-v1.X)*(v3.Y-v1.Y)-(v3.X-v1.X)*(v2.Y-v1.Y)}
+            };
+
+            for (int i=0; i<3; i++) {
+                for (int j=0; j<3; j++) 
+                    x[i] += A_inverse[i][j] * b[j];
+                x[i] /= det;
+            }
+            o = Vector3((float)x[0], (float)x[1], (float)x[2]);
+            r = v1.Distancef(&o);
+        }
     }
-private:
-    // 外接circle
-    void getCenterCircumcircle() {
+
+
+    
+    /*void getCenterCircumcircle() {
         Vector3 v1 = vertices[0];
         Vector3 v2 = vertices[1];
         Vector3 v3 = vertices[2];
@@ -91,8 +123,7 @@ private:
             r = v1.Distancef(&o);
         }
     }
-
-    /** LU分解による方程式の解法 **/
+    // LU分解による方程式の解法 
     double lu(double a[][3], int ip[]) {
         int n = 3;//a.length;
         double weight[n];
@@ -137,7 +168,8 @@ private:
     void solve(double a[][3], double b[], int ip[], double x[]) {
         int n = 3;//a.length;
         for(int i = 0; i < n; i++) {
-            int ii = ip[i]; double t = b[ii];
+            int ii = ip[i]; 
+            double t = b[ii];
             for (int j = 0; j < i; j++) 
                 t -= a[ii][j] * x[j];
             x[i] = t;
@@ -160,6 +192,7 @@ private:
         }
         return det;
     }
+    */
 };
 
 #endif

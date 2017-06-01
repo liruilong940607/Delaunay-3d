@@ -41,7 +41,8 @@ public:
         return l;
     }
 
-    bool equals(Triangle t) {
+    
+    /*bool equals(Triangle t) {
         vector<Line> lines1 = this->getLines();
         vector<Line> lines2 = t.getLines();
 
@@ -54,6 +55,28 @@ public:
         }
         if (cnt == 3) return true;
         else return false;
+    }*/
+    
+    bool equals(Triangle t) {
+        int cnt = 0;
+        if (v1 == t.v1)  cnt++;
+        if (v1 == t.v2)  cnt++;
+        if (v1 == t.v3)  cnt++;
+
+        if (v2 == t.v1)  cnt++;
+        if (v2 == t.v2)  cnt++;
+        if (v2 == t.v3)  cnt++;
+
+        if (v3 == t.v1)  cnt++;
+        if (v3 == t.v2)  cnt++;
+        if (v3 == t.v3)  cnt++;
+
+        if (cnt == 3)
+            return true;
+        else 
+            return false;
     }
+
+
 };
 #endif

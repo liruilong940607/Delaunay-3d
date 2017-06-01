@@ -1,10 +1,11 @@
 #include "Cube.h"
+
 using namespace std;
 float random(float start, float end){
     return float(start+(end-start)*rand()/(RAND_MAX + 1.0));
 }
 Cube::Cube(){
-    this->delaunayPointsCount = 100;
+    this->delaunayPointsCount = 500;
     this->delaunayPointsArray = NULL;
 }
 
@@ -42,7 +43,6 @@ void Cube::Init(){
 }
 
 void Cube::Draw(){
-    
     glPushMatrix();
     glTranslatef(d.tetras[0].o.X,d.tetras[0].o.Y,d.tetras[0].o.Z);
     glutWireSphere(d.tetras[0].r, 20, 20);
@@ -85,13 +85,18 @@ void Cube::SetPointsDelaunay(){
         float(r*sin(phi)), 
         float(r*cos(phi)*sin(theta))));
     }
-    // vec.push_back(Vector3(1.0f, 0.0f, 0.0f));
-    // vec.push_back(Vector3(-1.0f, 0.0f, 0.0f));
-    // vec.push_back(Vector3(0.0f, 0.5f, 0.0f));
-    // vec.push_back(Vector3(0.0f, -0.5f, 0.0f));
-    // vec.push_back(Vector3(0.0f, 0.0f, 1.0f));
-    // vec.push_back(Vector3(0.0f, 0.0f, -1.0f));
+    /*
+    vec.push_back(Vector3(1.0f, 0.0f, 0.0f));
+    vec.push_back(Vector3(-1.0f, 0.0f, 0.0f));
+    vec.push_back(Vector3(0.0f, 0.5f, 0.0f));
+    vec.push_back(Vector3(0.0f, -0.5f, 0.0f));
+    vec.push_back(Vector3(0.0f, 0.0f, 1.0f));
+    vec.push_back(Vector3(0.0f, 0.0f, -1.0f));
+    */
+    timeBegin = clock();
     d.SetData(vec);
+    timeEnd = clock();
+    cout << "Delaunay 3d time is: " << double(timeEnd - timeBegin) / CLOCKS_PER_SEC << endl;
 
     this->delaunayPoints.clear();
     delete[] this->delaunayPointsArray;

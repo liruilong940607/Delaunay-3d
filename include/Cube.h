@@ -60,6 +60,7 @@ private:
     GLfloat* delaunayPointsArray;
     std::vector<Vector3> delaunayPoints;
     int delaunayPointsCount;
+    clock_t timeBegin, timeEnd;
 public:
     Cube();
     virtual ~Cube();

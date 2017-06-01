@@ -101,7 +101,6 @@ Vector3 Vector3::cross(Vector3 v){
 	float crossX = this->Y * v.Z - v.Y * this->Z;
 	float crossY = this->Z * v.X - v.Z * this->X;
 	float crossZ = this->X * v.Y - v.X * this->Y;
-
 	return  Vector3(crossX, crossY, crossZ);
 }
 
@@ -111,4 +110,13 @@ float Vector3::dot(Vector3 v){
 
 bool Vector3::operator==(Vector3 v){
 	return this->X == v.X && this->Y == v.Y && this->Z == v.Z;
+}
+
+bool Vector3::operator!=(Vector3 v) {
+	return this->X != v.X || this->Y != v.Y || this->Z != v.Z;
+}
+
+ostream& operator << (ostream& output, Vector3& v) {
+	output << "(" << v.X << ", " << v.Y << ", " << v.Z << ")";
+	return output;
 }
