@@ -1,21 +1,10 @@
-#include "half_edge.h"
+# include"half_edge.h"
 
 /*stitch vertex v and edges e together 
   to form new facets. before stitching,
   facets of the hole should be cropped off*/
 
 void stitch( Vertex *v, vector<Edge*> &e ) {
-	// remove back path
-	vector<Edge*>::iterator iter;
-	int i=0;
-	while( i<e.size() ) {
-		if(e[i]->dual==e[(i+1)%e.size()]) {
-			e.erase(e.begin()+i);
-			e.erase(e.begin()+i%e.size());
-			if(i) i--;
-		}
-		else i++;
-	}
 	for(int i=0;i<e.size();i++) {
 		e[i]->dual = new Edge();
 		e[i]->dual->set(e[i],new Edge(),new Edge(),new Face(),e[i]->succ->v);
@@ -43,6 +32,8 @@ void crop( Face *tri ) {
 	Edge *e = tri->one_edge;
 	for(int i=0;i<3;i++) {
 		if(e->dual==NULL) {e=e->succ;continue;}
+		Edge *ed = e->dual;
+		ed->dual=NULL;
 		e->dual=NULL;
 		e=e->succ;
 	}

@@ -5,7 +5,7 @@ float random(float start, float end){
 }
 Cube::Cube()
 {
-    delaunayPointsCount = 5;
+    delaunayPointsCount = 6;
     m_count = 0;
 
     vec = SetPointsDelaunay();
@@ -17,7 +17,7 @@ Cube::Cube()
 void Cube::set_paint_points(){
     m_data.clear();
     m_count = 0;
-    m_data.resize(d.triangles.size() * 3 * 6);
+    m_data.resize(d.triangles.size() * 3 * 3);
     for (int i = 0; i < d.triangles.size(); ++i)
     {
        Vector3 v1 = d.triangles[i].v1;
@@ -32,7 +32,7 @@ void Cube::set_paint_points(){
 void Cube::set_paint_delauny(){
     m_data.clear();
     m_count = 0;
-    m_data.resize(d.triangles.size() * 3 * 6);
+    m_data.resize(d.triangles.size() * 3 * 3);
     for (int i = 0; i < d.triangles.size(); ++i)
     {
        Vector3 v1 = d.triangles[i].v1;
@@ -44,7 +44,16 @@ void Cube::set_paint_delauny(){
        printf("triangle index: %d %d %d\n",v1.getindex(),v2.getindex(),v3.getindex());
     }
 }
-void Cube::set_paint_voronoi_vertics(){}
+void Cube::set_paint_voronoi_vertics(){
+    m_data.clear();
+    m_count = 0;
+    m_data.resize(d.tetras.size() * 3);
+    for (int i = 0; i < d.tetras.size(); ++i)
+    {
+       Vector3 center = d.tetras[i].o;
+       add(center);
+    }
+}
 void Cube::set_paint_voronoi_cell(){
     m_data.clear();
     m_count = 0;
@@ -70,21 +79,21 @@ void Cube::set_paint_voronoi_cell_all(){}
 
 std::vector<Vector3> Cube::SetPointsDelaunay(){
     std::vector<Vector3> vec;
-    for (int i = 0; i < this->delaunayPointsCount; i++) {
-      float r = random(0.0, 0.5f);
-      float phi = random(-90, 90)/180.0*PI;
-      float theta = random(0, 360)/180.0*PI;
-      vec.push_back(Vector3(
-        float(r*cos(phi)*cos(theta)),
-        float(r*sin(phi)),
-        float(r*cos(phi)*sin(theta))));
-    }
-    // vec.push_back(Vector3(1.0f, 0.0f, 0.0f));
-    // vec.push_back(Vector3(-1.0f, 0.0f, 0.0f));
-    // vec.push_back(Vector3(0.0f, 0.5f, 0.0f));
-    // vec.push_back(Vector3(0.0f, -0.5f, 0.0f));
-    // vec.push_back(Vector3(0.0f, 0.0f, 1.0f));
-    // vec.push_back(Vector3(0.0f, 0.0f, -1.0f));
+//    for (int i = 0; i < this->delaunayPointsCount; i++) {
+//      float r = random(0.0, 0.5f);
+//      float phi = random(-90, 90)/180.0*PI;
+//      float theta = random(0, 360)/180.0*PI;
+//      vec.push_back(Vector3(
+//        float(r*cos(phi)*cos(theta)),
+//        float(r*sin(phi)),
+//        float(r*cos(phi)*sin(theta))));
+//    }
+     vec.push_back(Vector3(1.0f, 0.0f, 0.0f));
+     vec.push_back(Vector3(-1.0f, 0.0f, 0.0f));
+     vec.push_back(Vector3(0.0f, 0.5f, 0.0f));
+     vec.push_back(Vector3(0.0f, -0.5f, 0.0f));
+     vec.push_back(Vector3(0.0f, 0.0f, 1.0f));
+     vec.push_back(Vector3(0.0f, 0.0f, -1.0f));
     for (int i = 0; i < this->delaunayPointsCount; i++) {
         vec[i].setindex(i);
     }
@@ -107,8 +116,5 @@ void Cube::add(const Vector3 &v)
     *p++ = v.X;
     *p++ = v.Y;
     *p++ = v.Z;
-    *p++ = 0;
-    *p++ = 0;
-    *p++ = 0;
-    m_count += 6;
+    m_count += 3;
 }

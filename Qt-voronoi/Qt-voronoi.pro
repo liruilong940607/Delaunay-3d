@@ -37,5 +37,11 @@ HEADERS  += widget.h \
     voronoi-3d/include/half_edge.h \
     voronoi-3d/include/point_sets.h
 
+
 INCLUDEPATH += voronoi-3d/include
-LIBS += -lglut -lGLU
+# ubuntu
+#LIBS += -lglut -lGLU
+# mac
+#LIBS+= -L/usr/local/lib -lglfw3
+INCLUDEPATH+=/usr/local/include
+LIBS += -framework opengl -framework glut

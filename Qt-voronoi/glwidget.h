@@ -3,7 +3,13 @@
 
 #include <QWidget>  
 #include <QtOpenGL/QtOpenGL>  
-#include <GL/glu.h>
+// ubuntu
+//#include <GL/glu.h>
+// mac
+#include <OpenGL/gl.h>
+#include <OpenGL/glu.h>
+#include <GLUT/glut.h>
+
 #include "cube.h"
 class GLWidget : public QGLWidget  
 {  
@@ -16,7 +22,6 @@ public slots:
     void setXRotation(int angle);
     void setYRotation(int angle);
     void setZRotation(int angle);
-    void cleanup();
 
 signals:
     void xRotationChanged(int angle);
@@ -32,12 +37,10 @@ protected:
     void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
 private:  
-    GLdouble eyex; GLdouble eyey; GLdouble eyez;
-    GLdouble centerx; GLdouble centery; GLdouble centerz; 
-    GLdouble upx; GLdouble upy; GLdouble upz;
-    QPoint m_lastPos;
+    GLfloat eyex; GLfloat eyey; GLfloat eyez;
+    GLfloat centerx; GLfloat centery; GLfloat centerz;
+    GLfloat upx; GLfloat upy; GLfloat upz;
 
-    GLfloat Point[5][3];  
     Cube m_cube;
     // control
     bool F1_start;
@@ -46,11 +49,16 @@ private:
     bool F4_start;
     bool F5_start;
     void paint_points();
-    // void paint_delauny();
-    // void paint_voronoi_vertics();
-    // void paint_voronoi_cell();
+    void paint_delauny();
+    void paint_voronoi_vertics();
+    void paint_voronoi_cell();
     // void paint_voronoi_cell_all();
-  
+
+     int m_xRot;
+     int m_yRot;
+     int m_zRot;
+     QPoint m_lastPos;
+
 };  
 
 

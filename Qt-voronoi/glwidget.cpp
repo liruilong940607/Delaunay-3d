@@ -4,31 +4,41 @@
 
 GLWidget::GLWidget(QWidget * parent, const QGLWidget * shareWidget, Qt::WindowFlags f)
 {
-    eyex = 0-1.5; eyey = 0; eyez = 1-6.0;
+    eyex = 0; eyey = 0; eyez = 2;
     centerx = 0; centery = 0; centerz = 0;
     upx = 0; upy = 1; upz = 0;
+
     setMinimumSize(320,240);
     resize(640,480);
-    setWindowTitle(tr("第一个OpenGL程序"));
-    short angle = 18;
-    for(short i=0; i<5; i++) {
-        Point[i][0] = cos(angle * PI/180);
-        Point[i][1] = sin(angle * PI/180);
-        Point[i][2] = 0.0;
-        angle += 72;
-    }
+    setWindowTitle(tr("Voronoi demo"));
+
     F1_start = false;
     F2_start = false;
     F3_start = false;
     F4_start = false;
     F5_start = false;
+
+    m_xRot = 0;
+    m_yRot = 0;
+    m_zRot = 0;
 }
 GLWidget::~GLWidget()
 {
 }
 void GLWidget::initializeGL()
 {
-    glEnable(GL_DEPTH_TEST);  
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+//    static GLfloat lightpos[4] =
+//    glLightfv(GL_LIGHT0,GL_POSITION,lightpos);
+    GLfloat ambient[] = {1.0, 0.0, 0.0, 1.0};
+    GLfloat diffuse[] = {1.0, 1.0, 1.0, 1.0};
+    glLightfv(GL_LIGHT0,GL_AMBIENT,ambient);
+    glLightfv(GL_LIGHT0,GL_DIFFUSE,diffuse);
+    GLfloat lightpos[] = {eyex,eyey+10.0f,eyez+100.0f,1.0};
+    glLightfv(GL_LIGHT0,GL_POSITION,lightpos);
+
 }
 void GLWidget::paintGL()
 {
@@ -36,22 +46,20 @@ void GLWidget::paintGL()
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     glLoadIdentity();
     gluLookAt(eyex, eyey, eyez, centerx, centery, centerz, upx, upy, upz);
+    glRotatef(m_xRot/16.0+37,1.0,0.0,0.0);
+    glRotatef(m_yRot/16.0+331.5,0.0,1.0,0.0);
+    glRotatef(m_zRot/16.0,0.0,0.0,1.0);
+
     if (F1_start) // show points
         paint_points();
-    // if (F2_start) // show delauny
-    //     paint_delauny();
-    // if (F3_start) // show voronoi vertics
-    //     paint_voronoi_vertics();
-    // if (F4_start) // show voronoi cell
-    //     paint_voronoi_cell();
+    if (F2_start) // show delauny
+        paint_delauny();
+     if (F3_start) // show voronoi vertics
+         paint_voronoi_vertics();
+     if (F4_start) // show voronoi cell
+         paint_voronoi_cell();
     // if (F5_start) // show voronoi all cells
     //     paint_voronoi_cell_all();
-    glPointSize(9.0f);
-    glBegin( GL_POINTS );
-        glVertex3f(  0.0,  1.0,  0.0 );
-        glVertex3f( -1.0, -1.0,  0.0 );
-        glVertex3f(  1.0, -1.0,  0.0 );
-    glEnd();
 
     glFlush();  
 }
@@ -67,22 +75,17 @@ void GLWidget::mousePressEvent(QMouseEvent *event)
 {
     m_lastPos = event->pos();
 }
-
 void GLWidget::mouseMoveEvent(QMouseEvent *event)
 {
     float dx = event->x() - m_lastPos.x();
     float dy = event->y() - m_lastPos.y();
 
     if (event->buttons() & Qt::LeftButton) {
-        printf("mouseMoveEvent %f %f\n ", dx, dy);
-        eyex += cos(dx);
-        eyey += sin(dy);
-        update();
-        //setXRotation(m_xRot + 8 * dy);
-        //setYRotation(m_yRot + 8 * dx);
+        setXRotation(m_xRot + 8 * dy);
+        setYRotation(m_yRot + 8 * dx);
     } else if (event->buttons() & Qt::RightButton) {
-        //setXRotation(m_xRot + 8 * dy);
-        //setZRotation(m_zRot + 8 * dx);
+        setXRotation(m_xRot + 8 * dy);
+        setZRotation(m_zRot + 8 * dx);
     }
     m_lastPos = event->pos();
 }
@@ -96,39 +99,40 @@ void GLWidget::mouseDoubleClickEvent( QMouseEvent *event )
 void GLWidget::keyPressEvent(QKeyEvent *event)
 {
     switch (event->key())  {
-        case Qt::Key_F1:
+        case Qt::Key_Q:
             F1_start = !F1_start; // show points
             update();
             break;
-        case Qt::Key_F2:
+        case Qt::Key_W:
             F2_start = !F2_start; // show delauny
             update();
             break;
-        case Qt::Key_F3:
+        case Qt::Key_E:
             F3_start = !F3_start; // show voronoi vertics
             update();
             break;
-        case Qt::Key_F4:
+        case Qt::Key_R:
             F4_start = !F4_start; // show voronoi cell
             update();
             break;
-        case Qt::Key_F5:
+        case Qt::Key_T:
             F5_start = !F5_start; // show voronoi all cells
             update();
             break;
         case Qt::Key_Escape:
             close();
             break;
-        case Qt::Key_W:
-            update();
-            break;
         case Qt::Key_PageUp:
             break;
         case Qt::Key_PageDown:
             break;
         case Qt::Key_Up:
+            eyez += 0.1;
+            update();
             break;
         case Qt::Key_Down:
+            eyez -= 0.1;
+            update();
             break;
         case Qt::Key_Right:
             break;
@@ -136,49 +140,100 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
             break;
     }
 }
-void GLWidget::paint_points(){
-    // Setup our vertex buffer object.
-    m_cube.set_paint_delauny();
-    const GLfloat* data = m_cube.constData();
-    glBegin( GL_POINTS );
-    for (int i = 0; i < m_cube.count()/6; ++i){
-        glVertex3f(  data[i*6+0],  data[i*6+1],  data[i*6+2] );
-
-    }
-    glEnd();
+static void qNormalizeAngle(int &angle)
+{
+    while (angle < 0)
+        angle += 360 * 16;
+    while (angle > 360 * 16)
+        angle -= 360 * 16;
 }
 void GLWidget::setXRotation(int angle)
 {
-    //qNormalizeAngle(angle);
-//    if (angle != m_xRot) {
-//        m_xRot = angle;
-//        emit xRotationChanged(angle);
-//        update();
-//    }
+    qNormalizeAngle(angle);
+    if (angle != m_xRot) {
+        m_xRot = angle;
+        emit xRotationChanged(angle);
+        update();
+    }
 }
-
 void GLWidget::setYRotation(int angle)
 {
-    //qNormalizeAngle(angle);
-//    if (angle != m_yRot) {
-//        m_yRot = angle;
-//        emit yRotationChanged(angle);
-//        update();
-//    }
+    qNormalizeAngle(angle);
+    if (angle != m_yRot) {
+        m_yRot = angle;
+        emit yRotationChanged(angle);
+        update();
+    }
 }
-
 void GLWidget::setZRotation(int angle)
 {
-    //qNormalizeAngle(angle);
-//    if (angle != m_zRot) {
-//        m_zRot = angle;
-//        emit zRotationChanged(angle);
-//        update();
-//    }
+    qNormalizeAngle(angle);
+    if (angle != m_zRot) {
+        m_zRot = angle;
+        emit zRotationChanged(angle);
+        update();
+    }
 }
+void GLWidget::paint_points(){
+    // Setup our vertex buffer object.
+    glDisable(GL_LIGHTING);
+    m_cube.set_paint_delauny();
+    const GLfloat* data = m_cube.constData();
+    glPointSize(9.0f);
+    glColor3f(0.0, 1.0, 0.0);
+    glBegin( GL_POINTS );
+    for (int i = 0; i < m_cube.count()/3; ++i){
+        glVertex3f(  data[i*3+0],  data[i*3+1],  data[i*3+2] );
 
+    }
+    glEnd();
+    glEnable(GL_LIGHTING);
+}
+ void GLWidget::paint_delauny(){
+     // Setup our vertex buffer object.
+     glDisable(GL_LIGHTING);
+     m_cube.set_paint_delauny();
+     const GLfloat* data = m_cube.constData();
+     glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+     glColor3f(0.0, 0.0, 1.0);
+     glBegin( GL_TRIANGLES );
+     for (int i = 0; i < m_cube.count()/3; ++i){
+         glVertex3f(  data[i*3+0],  data[i*3+1],  data[i*3+2] );
 
+     }
+     glEnd();
+     glEnable(GL_LIGHTING);
+ }
+ void GLWidget::paint_voronoi_vertics(){
+     // Setup our vertex buffer object.
+     glDisable(GL_LIGHTING);
+     m_cube.set_paint_voronoi_vertics();
+     const GLfloat* data = m_cube.constData();
+     glPointSize(14.0f);
+     glColor3f(1.0, 1.0, 1.0);
+     glBegin( GL_POINTS );
+     for (int i = 0; i < m_cube.count()/3; ++i){
+         glVertex3f(  data[i*3+0],  data[i*3+1],  data[i*3+2] );
+     }
+     glEnd();
+     glEnable(GL_LIGHTING);
+ }
+void GLWidget::paint_voronoi_cell(){
+    // Setup our vertex buffer object.
+    m_cube.set_paint_voronoi_cell();
+    const GLfloat* data = m_cube.constData();
+    glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+    glBegin( GL_TRIANGLES );
+    for (int i = 0; i < m_cube.count()/6/3; i++){
+        for (int j = 0; j < 3; ++j){
+            GLfloat norm[3] = {data[i*6*3+j*6+3], data[i*6*3+j*6+4], data[i*6*3+j*6+5]};
+            glNormal3fv(norm);
+            glVertex3f(data[i*6*3+j*6+0],  data[i*6*3+j*6+1],  data[i*6*3+j*6+2] );
 
+        }
+    }
+    glEnd();
+}
 
 
 

@@ -1,11 +1,13 @@
 /*This cpp file mainly contains function Quick_Hull3D
   that computes convex hull of point set S
   using quick hull method.
+
   S is vector<Vector3> with size n x 3
   and return facets set K (indices)
   K is vector<array<int,3>> with size m x 3
   for each triangle, norm vector formed by <p1,p2,p3> 
   point to the outside
+
   To call the function:
 	PointSets3D PS( S ); --when S is a vector<Vector3>
 	PointSets3D PS( S, n ); --when S is a Vector3 S[n]
@@ -49,8 +51,6 @@ void PointSets3D::find_hull( stack<Face*> &face_stack ) {
 	array<Edge*,3> edge = tri->getEdge();
 	array<int,3> pnt = tri->getVertex();
 	
-	vector<Face*> envolope;
-	envolope.push_back(tri);
 	int max_id;
 	if (find_farest( pnt,max_id ) ) { // if find farest point 
 		exm_pnts[S_id[max_id]]=1; // marked
@@ -68,31 +68,30 @@ void PointSets3D::find_hull( stack<Face*> &face_stack ) {
 			dist_p2plane(S[v1],S[tr1[0]],S[tr1[1]],S[tr1[2]])>0) {
 			e.push_back( edge[0]->dual->succ->dual );
 			e.push_back( edge[0]->dual->pred->dual );
-			envolope.push_back(edge[0]->dual->tri);
+			crop( edge[0]->dual->tri );
 		}
 		else e.push_back(edge[0]->dual);
 		if (is_on_line( S[tr2[0]],S[tr2[1]],S[tr2[2]] ) ||
 			dist_p2plane(S[v2],S[tr2[0]],S[tr2[1]],S[tr2[2]])>0) {
 			e.push_back( edge[1]->dual->succ->dual );
 			e.push_back( edge[1]->dual->pred->dual );
-			envolope.push_back(edge[1]->dual->tri);
+			crop( edge[1]->dual->tri );
 		}
 		else e.push_back(edge[1]->dual);
 		if (is_on_line( S[tr3[0]],S[tr3[1]],S[tr3[2]] ) ||
 			dist_p2plane(S[v3],S[tr3[0]],S[tr3[1]],S[tr3[2]])>0) {
 			e.push_back( edge[2]->dual->succ->dual );
 			e.push_back( edge[2]->dual->pred->dual );
-			envolope.push_back(edge[2]->dual->tri);
+			crop( edge[2]->dual->tri );
 		}
 		else e.push_back(edge[2]->dual);
 
+		crop( tri );
 		Vertex *v = new Vertex(S_id[max_id]);
 		stitch( v, e ); 
 
-		//reverse faces in envolope to kill
-		for(int i=0;i<envolope.size();i++) {crop(envolope[i]);envolope[i]->reverse();}
-
 		//generate new faces, push into stack and kill points
+		vector<Face*> envolope;
 		Edge *ed = v->one_edge;
 		do {
 			face_stack.push(ed->tri);
@@ -100,7 +99,6 @@ void PointSets3D::find_hull( stack<Face*> &face_stack ) {
 			ed = ed->pred->dual;
 		}
 		while(ed!=v->one_edge);
-
 		kill_points( envolope );
 
 		de_tri(tri);
@@ -131,12 +129,8 @@ void PointSets3D::kill_points( vector<Face*>& tris ) {
 }
 
 vector<int> PointSets3D::get_Extreme_pnts_id() {
-	if (exm_pnts.empty()) Quick_Hull3D();
-	vector<int> id;
-	for(int i=0;i<exm_pnts.size();i++)
-		if(exm_pnts[i])
-			id.push_back(i);
-	return id;
+	if (S_id.empty()) Quick_Hull3D();
+	return S_id;
 }
 
 vector<bool> PointSets3D::get_Extreme_pnts_label() {
@@ -289,3 +283,4 @@ array<array<int,2>,3> PointSets3D::findmost_xyz() {
 	}
 	return id;
 }
+
