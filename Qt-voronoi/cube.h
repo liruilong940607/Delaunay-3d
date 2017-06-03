@@ -11,6 +11,7 @@
 #include "point_sets.h"
 #include <map>
 #define PI 3.141592653589
+#define min(a,b) a<b?a:b
 
 class Cube
 {
@@ -26,6 +27,14 @@ public:
     void set_paint_voronoi_vertics();
     void set_paint_voronoi_cell();
     void set_paint_voronoi_cell_all();
+
+    void paint_delauney_process(int step, int type);
+    QVector<GLfloat> process_data;
+    int basic_count;
+    QVector<GLfloat> cur_data;
+    int cur_count;
+    int cur_data_draw_type;
+    int cur_step;
 private:
     std::vector<Vector3> SetPointsDelaunay();
     void add(const Vector3 &v, const Vector3 &n);
@@ -34,6 +43,9 @@ private:
     int m_count;
     int delaunayPointsCount;
     std::vector<Vector3> vec;
+
+    void add(const Vector3 &v, QVector<GLfloat> data, int &count);
+
 
 };
 

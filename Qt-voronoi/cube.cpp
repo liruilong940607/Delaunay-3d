@@ -7,41 +7,116 @@ Cube::Cube()
 {
     delaunayPointsCount = 6;
     m_count = 0;
-
+    basic_count = 0;
     vec = SetPointsDelaunay();
     printf("setdata\n");
     d.SetData(vec);
     printf("setdata done\n");
 }
 
+void Cube::paint_delauney_process(int step, int type){
+    std::vector<Event> events = d.eventvec;
+    step = step<events.size() ? step:(events.size()-1);
+    cur_data_draw_type = events[step].eventtype;
+    Tetrahedron outer = d.bigtetra;
+    if (type==0 || type==5){//tetras
+        m_data.clear();
+        m_count = 0;
+        m_data.resize(events[step].tetras.size() * 4 * 3 * 3);
+        for (int i = 0; i < events[step].tetras.size() ; ++i)
+        {
+           Vector3 v1 = events[step].tetras[i].vertices[0];
+           Vector3 v2 = events[step].tetras[i].vertices[1];
+           Vector3 v3 = events[step].tetras[i].vertices[2];
+           Vector3 v4 = events[step].tetras[i].vertices[3];
+           add(v1); add(v2); add(v3);
+           add(v2); add(v3); add(v4);
+           add(v3); add(v4); add(v1);
+           add(v4); add(v1); add(v2);
+        }
+    }
+    if (type==1){//tmpTList;
+        m_data.clear();
+        m_count = 0;
+        m_data.resize(events[step].tmpTList.size() * 4 * 3 * 3);
+        for (int i = 0; i < events[step].tmpTList.size() ; ++i)
+        {
+           Vector3 v1 = events[step].tmpTList[i].vertices[0];
+           Vector3 v2 = events[step].tmpTList[i].vertices[1];
+           Vector3 v3 = events[step].tmpTList[i].vertices[2];
+           Vector3 v4 = events[step].tmpTList[i].vertices[3];
+           add(v1); add(v2); add(v3);
+           add(v2); add(v3); add(v4);
+           add(v3); add(v4); add(v1);
+           add(v4); add(v1); add(v2);
+        }
+    }
+    if (type==2){//newTList
+        m_data.clear();
+        m_count = 0;
+        m_data.resize(events[step].newTList.size() * 4 * 3 * 3);
+        for (int i = 0; i < events[step].newTList.size() ; ++i)
+        {
+           Vector3 v1 = events[step].newTList[i].vertices[0];
+           Vector3 v2 = events[step].newTList[i].vertices[1];
+           Vector3 v3 = events[step].newTList[i].vertices[2];
+           Vector3 v4 = events[step].newTList[i].vertices[3];
+           add(v1); add(v2); add(v3);
+           add(v2); add(v3); add(v4);
+           add(v3); add(v4); add(v1);
+           add(v4); add(v1); add(v2);
+        }
+    }
+    if (type==3){//newTList_isRedundancy
+        m_data.clear();
+        m_count = 0;
+        m_data.resize(events[step].newTList.size() * 4 * 3 * 3);
+        for (int i = 0; i < events[step].newTList.size() ; ++i)
+        {
+            if (!events[step].newTList_isRedundancy[i])
+                continue;
+            Vector3 v1 = events[step].newTList[i].vertices[0];
+            Vector3 v2 = events[step].newTList[i].vertices[1];
+            Vector3 v3 = events[step].newTList[i].vertices[2];
+            Vector3 v4 = events[step].newTList[i].vertices[3];
+            add(v1); add(v2); add(v3);
+            add(v2); add(v3); add(v4);
+            add(v3); add(v4); add(v1);
+            add(v4); add(v1); add(v2);
+        }
+    }
+    if (type==4){//points
+        m_data.clear();
+        m_count = 0;
+        m_data.resize(1 * 3);
+        add(events[step].v);
+    }
+}
+
 void Cube::set_paint_points(){
     m_data.clear();
     m_count = 0;
-    m_data.resize(d.triangles.size() * 3 * 3);
-    for (int i = 0; i < d.triangles.size(); ++i)
+    m_data.resize(vec.size() * 3);
+    for (int i = 0; i < vec.size(); ++i)
     {
-       Vector3 v1 = d.triangles[i].v1;
-       Vector3 v2 = d.triangles[i].v2;
-       Vector3 v3 = d.triangles[i].v3;
-       add(v1);
-       add(v2);
-       add(v3);
-       printf("triangle index: %d %d %d\n",v1.getindex(),v2.getindex(),v3.getindex());
+       Vector3 v = vec[i];
+       add(v);
     }
 }
 void Cube::set_paint_delauny(){
     m_data.clear();
     m_count = 0;
-    m_data.resize(d.triangles.size() * 3 * 3);
-    for (int i = 0; i < d.triangles.size(); ++i)
+    m_data.resize(d.tetras.size() * 4 * 3 * 3);
+    for (int i = 0; i < d.tetras.size() ; ++i)
     {
-       Vector3 v1 = d.triangles[i].v1;
-       Vector3 v2 = d.triangles[i].v2;
-       Vector3 v3 = d.triangles[i].v3;
-       add(v1);
-       add(v2);
-       add(v3);
-       printf("triangle index: %d %d %d\n",v1.getindex(),v2.getindex(),v3.getindex());
+       Vector3 v1 = d.tetras[i].vertices[0];
+       Vector3 v2 = d.tetras[i].vertices[1];
+       Vector3 v3 = d.tetras[i].vertices[2];
+       Vector3 v4 = d.tetras[i].vertices[3];
+       add(v1); add(v2); add(v3);
+       add(v2); add(v3); add(v4);
+       add(v3); add(v4); add(v1);
+       add(v4); add(v1); add(v2);
     }
 }
 void Cube::set_paint_voronoi_vertics(){
@@ -117,4 +192,12 @@ void Cube::add(const Vector3 &v)
     *p++ = v.Y;
     *p++ = v.Z;
     m_count += 3;
+}
+void Cube::add(const Vector3 &v, QVector<GLfloat> data, int &count)
+{
+    GLfloat *p = data.data() + count;
+    *p++ = v.X;
+    *p++ = v.Y;
+    *p++ = v.Z;
+    count += 3;
 }

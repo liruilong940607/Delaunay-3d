@@ -4,7 +4,7 @@
 
 GLWidget::GLWidget(QWidget * parent, const QGLWidget * shareWidget, Qt::WindowFlags f)
 {
-    eyex = 0; eyey = 0; eyez = 2;
+    eyex = 0; eyey = 0; eyez = 2+10;
     centerx = 0; centery = 0; centerz = 0;
     upx = 0; upy = 1; upz = 0;
 
@@ -17,10 +17,13 @@ GLWidget::GLWidget(QWidget * parent, const QGLWidget * shareWidget, Qt::WindowFl
     F3_start = false;
     F4_start = false;
     F5_start = false;
+    F6_start = false;
 
     m_xRot = 0;
     m_yRot = 0;
     m_zRot = 0;
+
+    process_step = 0;
 }
 GLWidget::~GLWidget()
 {
@@ -47,7 +50,7 @@ void GLWidget::paintGL()
     glLoadIdentity();
     gluLookAt(eyex, eyey, eyez, centerx, centery, centerz, upx, upy, upz);
     glRotatef(m_xRot/16.0+37,1.0,0.0,0.0);
-    glRotatef(m_yRot/16.0+331.5,0.0,1.0,0.0);
+    glRotatef(m_yRot/16.0+300.5,0.0,1.0,0.0);
     glRotatef(m_zRot/16.0,0.0,0.0,1.0);
 
     if (F1_start) // show points
@@ -60,6 +63,8 @@ void GLWidget::paintGL()
          paint_voronoi_cell();
     // if (F5_start) // show voronoi all cells
     //     paint_voronoi_cell_all();
+     if (F6_start)
+         paint_delauney_process(process_step);
 
     glFlush();  
 }
@@ -119,6 +124,10 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
             F5_start = !F5_start; // show voronoi all cells
             update();
             break;
+        case Qt::Key_A:
+            F6_start = !F6_start;
+            update();
+            break;
         case Qt::Key_Escape:
             close();
             break;
@@ -135,8 +144,13 @@ void GLWidget::keyPressEvent(QKeyEvent *event)
             update();
             break;
         case Qt::Key_Right:
+            process_step++;
+            update();
             break;
         case Qt::Key_Left:
+            process_step--;
+            process_step = process_step<0?0:process_step;
+            update();
             break;
     }
 }
@@ -195,11 +209,10 @@ void GLWidget::paint_points(){
      m_cube.set_paint_delauny();
      const GLfloat* data = m_cube.constData();
      glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-     glColor3f(0.0, 0.0, 1.0);
+     glColor3f(1.0, 0.0, 0.0);
      glBegin( GL_TRIANGLES );
      for (int i = 0; i < m_cube.count()/3; ++i){
          glVertex3f(  data[i*3+0],  data[i*3+1],  data[i*3+2] );
-
      }
      glEnd();
      glEnable(GL_LIGHTING);
@@ -234,7 +247,94 @@ void GLWidget::paint_voronoi_cell(){
     }
     glEnd();
 }
+void GLWidget::paint_delauney_process(int step){
+    glDisable(GL_LIGHTING);
+    m_cube.paint_delauney_process(step, 0);
+    if(!(m_cube.cur_data_draw_type == DeleteBigTetra ||
+         m_cube.cur_data_draw_type == SetCurrentTetras ||
+         m_cube.cur_data_draw_type == CreateBigTetra ||
+         m_cube.cur_data_draw_type == SetCurrentPoint ||
+         m_cube.cur_data_draw_type == JudgeIsInSphere ||
+         m_cube.cur_data_draw_type == CreateFourNewTetraAndRemove)){
+        m_cube.paint_delauney_process(step, 3);
+        const GLfloat* data4 = m_cube.constData();
+        glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+        glColor3f(0.0, 1.0, 1.0);
+        glBegin( GL_TRIANGLES );
+        for (int i = 0; i < m_cube.count()/3; ++i){
+            glVertex3f(  data4[i*3+0],  data4[i*3+1],  data4[i*3+2] );
+        }
+        glEnd();
+    }
 
+    if(!(m_cube.cur_data_draw_type == DeleteBigTetra ||
+         m_cube.cur_data_draw_type == SetCurrentTetras ||
+         m_cube.cur_data_draw_type == CreateBigTetra ||
+         m_cube.cur_data_draw_type == SetCurrentPoint ||
+         m_cube.cur_data_draw_type == JudgeIsInSphere)){
+        m_cube.paint_delauney_process(step, 2);
+        const GLfloat* data3 = m_cube.constData();
+        glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+        glColor3f(0.0, 0.0, 1.0);
+        glBegin( GL_TRIANGLES );
+        for (int i = 0; i < m_cube.count()/3; ++i){
+            glVertex3f(  data3[i*3+0],  data3[i*3+1],  data3[i*3+2] );
+        }
+        glEnd();
+    }
+
+    if(!(m_cube.cur_data_draw_type == DeleteBigTetra ||
+         m_cube.cur_data_draw_type == SetCurrentTetras ||
+         m_cube.cur_data_draw_type == CreateBigTetra ||
+         m_cube.cur_data_draw_type == SetCurrentPoint)){
+        m_cube.paint_delauney_process(step, 1);
+        const GLfloat* data2 = m_cube.constData();
+        glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+        glColor3f(1.0, 0.0, 0.0);
+        glBegin( GL_TRIANGLES );
+        for (int i = 0; i < m_cube.count()/3; ++i){
+            glVertex3f(  data2[i*3+0],  data2[i*3+1],  data2[i*3+2] );
+        }
+        glEnd();
+    }
+
+    if(!(m_cube.cur_data_draw_type == DeleteBigTetra ||
+         m_cube.cur_data_draw_type == SetCurrentTetras ||
+            m_cube.cur_data_draw_type == CreateBigTetra)){
+        printf("SetCurrentPoint \n");
+        m_cube.paint_delauney_process(step, 4);
+        const GLfloat* data11 = m_cube.constData();
+        glPointSize(14.0f);
+        glColor3f(1.0, 1.0, 1.0);
+        glBegin( GL_POINTS );
+        for (int i = 0; i < m_cube.count()/3; ++i){
+            glVertex3f(  data11[i*3+0],  data11[i*3+1],  data11[i*3+2] );
+        }
+        glEnd();
+    }
+    if(!(m_cube.cur_data_draw_type == DeleteBigTetra)){
+        m_cube.paint_delauney_process(step, 0);
+        const GLfloat* data1 = m_cube.constData();
+        glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+        glColor3f(0.0, 1.0, 0.0);
+        glBegin( GL_TRIANGLES );
+        for (int i = 0; i < m_cube.count()/3; ++i){
+            glVertex3f(  data1[i*3+0],  data1[i*3+1],  data1[i*3+2] );
+        }
+        glEnd();
+    }
+    m_cube.paint_delauney_process(step, 5);
+    const GLfloat* data1 = m_cube.constData();
+    glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+    glColor3f(0.0, 1.0, 0.0);
+    glBegin( GL_TRIANGLES );
+    for (int i = 0; i < m_cube.count()/3; ++i){
+        glVertex3f(  data1[i*3+0],  data1[i*3+1],  data1[i*3+2] );
+    }
+    glEnd();
+    glEnable(GL_LIGHTING);
+
+}
 
 
 // #include "glwidget.h"

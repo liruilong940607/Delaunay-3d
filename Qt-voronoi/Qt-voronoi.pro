@@ -23,7 +23,8 @@ SOURCES += main.cpp\
     voronoi-3d/src/Delaunay.cpp \
     cube.cpp \
     voronoi-3d/src/convhull.cpp \
-    voronoi-3d/src/half_edge_manipulation.cpp
+    voronoi-3d/src/half_edge_manipulation.cpp \
+    event.cpp
 
 HEADERS  += widget.h \
     glwidget.h \
@@ -35,7 +36,8 @@ HEADERS  += widget.h \
     voronoi-3d/include/Delaunay.h \
     cube.h \
     voronoi-3d/include/half_edge.h \
-    voronoi-3d/include/point_sets.h
+    voronoi-3d/include/point_sets.h \
+    event.h
 
 
 INCLUDEPATH += voronoi-3d/include

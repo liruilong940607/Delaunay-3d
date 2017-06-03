@@ -18,6 +18,7 @@ public:
     Vector3 o;      // 外接circle 中心
     float   r;      // 外接circle 半径
 
+    Tetrahedron() {}
     Tetrahedron(vector<Vector3> v) {
         this->vertices = v;
         getCenterCircumcircle();

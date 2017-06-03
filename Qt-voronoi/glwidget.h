@@ -48,16 +48,20 @@ private:
     bool F3_start;
     bool F4_start;
     bool F5_start;
+    bool F6_start;
     void paint_points();
     void paint_delauny();
     void paint_voronoi_vertics();
     void paint_voronoi_cell();
     // void paint_voronoi_cell_all();
+    void paint_delauney_process(int step);
 
      int m_xRot;
      int m_yRot;
      int m_zRot;
      QPoint m_lastPos;
+
+     int process_step;
 
 };  
 

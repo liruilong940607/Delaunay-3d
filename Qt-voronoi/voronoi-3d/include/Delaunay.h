@@ -10,6 +10,7 @@
 #include <vector> 
 #include <cmath>
 #include <iostream>
+#include "event.h"
 using namespace std;
 
 class Delaunay {
@@ -19,8 +20,8 @@ public:
     vector<Line> edges;
     vector<Line> surfaceEdges;
     vector<Triangle> triangles;
-
-
+    vector<Event> eventvec;
+    Tetrahedron bigtetra;
     Delaunay() {
     }
 
@@ -87,6 +88,7 @@ public:
         outer.push_back(v3);
         outer.push_back(v4);
         tetras.push_back(Tetrahedron(v1, v2, v3, v4));
+        bigtetra = Tetrahedron(v1, v2, v3, v4);
         cout<<"outer 1: "<<v1.X<<" "<<v1.Y<<" "<<v1.Z<<endl;
         cout<<"outer 2: "<<v2.X<<" "<<v2.Y<<" "<<v2.Z<<endl;
         cout<<"outer 3: "<<v3.X<<" "<<v3.Y<<" "<<v3.Z<<endl;
@@ -99,16 +101,22 @@ public:
         vector<Tetrahedron> removeTList;
 
         cout<<"======[start]======"<<endl;
-
+        std::vector<int> isRedundancy_vec_tmp;
+        Vector3 v_tmp = v4;
+        eventvec.push_back(Event(CreateBigTetra,tetras,tmpTList,newTList,isRedundancy_vec_tmp,v_tmp));
         for (int i=0; i<seq.size(); i++) {
             Vector3 v = seq[i];
+            std::vector<int> isRedundancy_vec;
             tmpTList.clear();
             newTList.clear();
             removeTList.clear();
+            eventvec.push_back(Event(SetCurrentPoint,tetras,tmpTList,newTList,isRedundancy_vec,v));
 
             for (int t=0; t<tetras.size(); t++) {
-                if(tetras[t].r != -1 && tetras[t].r > v.Distancef(&tetras[t].o))
+                if(tetras[t].r != -1 && tetras[t].r > v.Distancef(&tetras[t].o)){
                     tmpTList.push_back(tetras[t]);
+                    eventvec.push_back(Event(JudgeIsInSphere,tetras,tmpTList,newTList,isRedundancy_vec,v));
+                }
             }
 
             for (int t=0; t<tmpTList.size(); t++) {
@@ -123,6 +131,7 @@ public:
                 newTList.push_back(Tetrahedron(v1, v3, v4, v));
                 newTList.push_back(Tetrahedron(v2, v3, v4, v));
             }
+            eventvec.push_back(Event(CreateFourNewTetraAndRemove,tetras,tmpTList,newTList,isRedundancy_vec,v));
 
             bool isRedundancy[newTList.size()];
             for (int ii = 0; ii < newTList.size(); ii++) 
@@ -133,12 +142,15 @@ public:
                         isRedundancy[ii] = true;
                         isRedundancy[jj] = true;
                     }
-            
+            for (int ii = 0; ii < newTList.size(); ii++)
+                isRedundancy_vec.push_back(isRedundancy[ii]);
+            eventvec.push_back(Event(JudgeSameAndRemove,tetras,tmpTList,newTList,isRedundancy_vec,v));
             for (int ii = 0; ii < newTList.size(); ii++) {
                 if (!isRedundancy[ii]) {
                     tetras.push_back(newTList[ii]);
                 }
             }
+            eventvec.push_back(Event(SetCurrentTetras,tetras,tmpTList,newTList,isRedundancy_vec,v));
         }
        
         cout<<"======[end]======"<<endl;
@@ -164,6 +176,7 @@ public:
                 i--;
             }
         }
+        eventvec.push_back(Event(DeleteBigTetra,tetras,tmpTList,newTList,isRedundancy_vec_tmp,v_tmp));
 
         cout<<"stage2"<<endl;
         triangles.clear();
