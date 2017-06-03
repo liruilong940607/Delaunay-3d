@@ -5,7 +5,7 @@ float random(float start, float end){
 }
 Cube::Cube()
 {
-    delaunayPointsCount = 6;
+    delaunayPointsCount = 8;
     m_count = 0;
     basic_count = 0;
     vec = SetPointsDelaunay();
@@ -163,12 +163,20 @@ std::vector<Vector3> Cube::SetPointsDelaunay(){
 //        float(r*sin(phi)),
 //        float(r*cos(phi)*sin(theta))));
 //    }
-     vec.push_back(Vector3(1.0f, 0.0f, 0.0f));
-     vec.push_back(Vector3(-1.0f, 0.0f, 0.0f));
-     vec.push_back(Vector3(0.0f, 0.5f, 0.0f));
-     vec.push_back(Vector3(0.0f, -0.5f, 0.0f));
-     vec.push_back(Vector3(0.0f, 0.0f, 1.0f));
-     vec.push_back(Vector3(0.0f, 0.0f, -1.0f));
+//     vec.push_back(Vector3(1.0f, 0.0f, 0.0f));
+//     vec.push_back(Vector3(-1.0f, 0.0f, 0.0f));
+//     vec.push_back(Vector3(0.0f, 0.5f, 0.0f));
+//     vec.push_back(Vector3(0.0f, -0.5f, 0.0f));
+//     vec.push_back(Vector3(0.0f, 0.0f, 1.0f));
+//     vec.push_back(Vector3(0.0f, 0.0f, -1.0f));
+    vec.push_back(Vector3(0.0f, 0.0f, 0.0f));
+    vec.push_back(Vector3(1.0f, 0.0f, 0.0f));
+    vec.push_back(Vector3(0.0f, 1.0f, 0.0f));
+    vec.push_back(Vector3(0.0f, 0.0f, 1.0f));
+    vec.push_back(Vector3(0.3f, 0.3f, 0.3f));
+    vec.push_back(Vector3(0.5f, 0.5f, 0.5f));
+    vec.push_back(Vector3(0.5f, 0.5f, 1.5f));
+    vec.push_back(Vector3(0.3f, 0.8f, 0.8f));
     for (int i = 0; i < this->delaunayPointsCount; i++) {
         vec[i].setindex(i);
     }

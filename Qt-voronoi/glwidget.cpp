@@ -65,7 +65,9 @@ void GLWidget::paintGL()
     //     paint_voronoi_cell_all();
      if (F6_start)
          paint_delauney_process(process_step);
-
+    Triangle TT = Triangle(Vector3(0.0f,1.0f,0.0f),Vector3(1.0f,0.0f,0.0f),
+             Vector3(0.0f,0.0f,0.0f));
+    printf("center: %f %f %f %f\n",TT.o.X,TT.o.Y,TT.o.Z,TT.r);
     glFlush();  
 }
 void GLWidget::resizeGL(int width, int height)
