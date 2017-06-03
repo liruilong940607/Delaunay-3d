@@ -21,6 +21,8 @@ public:
     int count() const { return m_count; }
     int vertexCount() const { return m_count / 3; }
 
+    PointSets3D ps3d;
+    vector<vector<array<Vector3,3>>> polytope;
     Delaunay d;
     void set_paint_points();
     void set_paint_delauny();

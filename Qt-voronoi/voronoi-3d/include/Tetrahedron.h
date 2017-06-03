@@ -10,6 +10,7 @@
 #include "Triangle.h"
 #include <vector>
 #include <cmath>
+#include <array>
 using namespace std;
 
 class Tetrahedron {
@@ -52,6 +53,13 @@ public:
         lines.push_back(Line(vertices[1], vertices[3]));
         lines.push_back(Line(vertices[2], vertices[3]));
         return lines;
+    }
+    array<int,4> getVerticesIndex() {
+        array<int,4> a={vertices[0].index,
+                        vertices[1].index,
+                        vertices[2].index,
+                        vertices[3].index};
+        return a;
     }
 private:
     // 四面体外接球

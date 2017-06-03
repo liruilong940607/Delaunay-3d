@@ -40,7 +40,11 @@ public:
     static bool myUnique(Vector3 &a,  Vector3 &b) {
         return a == b;
     }
-
+    void clear() {
+        tetras.clear();
+        vertices.clear();
+        triangles.clear();
+    }
     // consider a point as a vector object
     void SetData(vector<Vector3> seq) {
         cout << "input points num is : " << seq.size() << endl;
@@ -240,6 +244,7 @@ public:
             if (!isSameTriangle[i])
                 triangles.push_back(triList[i]);
         }
+        cout<<"stage5"<<endl;
     }
 
     /*void SetData(vector<Vector3> seq) {

@@ -4,6 +4,7 @@ Vector3::Vector3(Vector3 *v){
     this->X = v->X;
     this->Y = v->Y;
         this->Z = v->Z;
+    this->index = v->index;
 }
 Vector3::Vector3(){
     this->X = 0;
@@ -14,6 +15,8 @@ Vector3::Vector3(const Vector3 &v){
     this->X = v.X;
     this->Y = v.Y;
         this->Z = v.Z;
+    this->index = v.index;
+
 }
 Vector3::~Vector3(){
 

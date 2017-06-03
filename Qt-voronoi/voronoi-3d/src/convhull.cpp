@@ -34,7 +34,8 @@ bool PointSets3D::find_farest( array<int,3> pnt, int &max_id ) {
         }
     }
 
-    if (!(dmax<0)) {return true;}
+    if (!(dmax<0)) return true;
+    //else if (dmax==0.0f && !exm_pnts[S_id[max_id]]) return true;
 
     return false;
 }
