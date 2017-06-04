@@ -10,7 +10,6 @@
 
 
 vector<vector<array<Vector3,3>>> PointSets3D::Voronoi3d(Vector3 min, Vector3 max){
-
     if(!Polytope.empty()) return Polytope;
     if(S.empty()) {printf("no points set input!");return Polytope;}
     if(dln.tetras.empty()) delaunay();
@@ -22,9 +21,8 @@ vector<vector<array<Vector3,3>>> PointSets3D::Voronoi3d(Vector3 min, Vector3 max
     }
 
     for(int i=0;i<TETRA.size();i++) {
-        for(int j=0;j<4;j++){
+        for(int j=0;j<4;j++)
             polyindex[TETRA[i][j]].push_back(i);
-        }
     }
     vector<vector<Vector3>> polyvec;
     vector<Vector3> vec;
@@ -38,20 +36,50 @@ vector<vector<array<Vector3,3>>> PointSets3D::Voronoi3d(Vector3 min, Vector3 max
     Vector3 p; vector<int> v; int p_in;
     if(K.empty()) Quick_Hull3D();
     for( int i=0;i<TETRA.size();i++) {
-        if(exm_pnts[TETRA[i][0]]+exm_pnts[TETRA[i][1]]+
-           exm_pnts[TETRA[i][2]]+exm_pnts[TETRA[i][3]]>2){ // three points on the convhull
-            v.clear();
-            for(int j=0;j<4;j++)
-                if(exm_pnts[TETRA[i][j]]) v.push_back(TETRA[i][j]);
-                else p_in = TETRA[i][j];
-            Triangle t = Triangle(S[v[0]],S[v[1]],S[v[2]]);// bug?
-            if(dist_p2plane(S[p_in],S[v[0]],S[v[1]],S[v[2]])>0)
-                t = Triangle(S[v[2]],S[v[1]],S[v[0]]);
+        int v1 = TETRA[i][0]; int v2 = TETRA[i][1];
+        int v3 = TETRA[i][2]; int v4 = TETRA[i][3];
+
+        vector<array<int,3>> tris;
+        array<int,3> tris1 = {v1, v2, v3};
+        array<int,3> tris2 = {v2, v3, v4};
+        array<int,3> tris3 = {v3, v4, v1};
+        array<int,3> tris4 = {v4, v1, v2};
+        tris.push_back(tris1);
+        tris.push_back(tris2);
+        tris.push_back(tris3);
+        tris.push_back(tris4);
+
+        for (int j = 0; j< 4; j++){
+            Vector3 p;
+            int max_id = 0;
+            if (find_farest_voronoi( tris[j], max_id ))
+                reverse(tris[j]);
+                if (find_farest_voronoi( tris[j], max_id ))
+                    continue;
+            Triangle t = Triangle(S[tris[j][0]],S[tris[j][1]],S[tris[j][2]]);
             printf("%d\n", i);
             if(is_hit(t.o,t.getNormal(),min,max,p))
-                for(int j=0;j<3;j++) polyvec[v[j]].push_back(p);
+                for(int k=0;k<3;k++) polyvec[tris[j][k]].push_back(p);
         }
+
     }
+
+//    for( int i=0;i<TETRA.size();i++) {
+
+//        if(exm_pnts[TETRA[i][0]]+exm_pnts[TETRA[i][1]]+
+//           exm_pnts[TETRA[i][2]]+exm_pnts[TETRA[i][3]]>2){ // three points on the convhull
+//            v.clear();
+//            for(int j=0;j<4;j++)
+//                if(exm_pnts[TETRA[i][j]]) v.push_back(TETRA[i][j]);
+//                else p_in = TETRA[i][j];
+//            Triangle t = Triangle(S[v[0]],S[v[1]],S[v[2]]);
+//            if(dist_p2plane(S[p_in],S[v[0]],S[v[1]],S[v[2]])>0)
+//                t = Triangle(S[v[2]],S[v[1]],S[v[0]]);
+//            printf("%d\n", i);
+//            if(is_hit(t.o,t.getNormal(),min,max,p))
+//                for(int j=0;j<3;j++) polyvec[v[j]].push_back(p);
+//        }
+//    }
 
     // construct polytope
     vector<array<Vector3,3>> trivec;
@@ -67,6 +95,7 @@ vector<vector<array<Vector3,3>>> PointSets3D::Voronoi3d(Vector3 min, Vector3 max
             Polytope[i].push_back( a );
         }
     }
+
     return Polytope;
 }
 
@@ -97,113 +126,87 @@ vector<Tetrahedron> PointSets3D::delaunay() {
     return dln.tetras;
 }
 
-
-
-
-
+void swap_float( float &x, float &y ) {
+    float t = x;
+    x = y;
+    y = t;
+}
 
 bool PointSets3D::is_hit(Vector3 c,Vector3 n,Vector3 min,Vector3 max,Vector3 &p){
-{
-  Vector3 ptOnPlane; //射线与包围盒某面的交点
-  //aabb包围盒最小点坐标 min
-  //aabb包围盒最大点坐标 max
 
-  Vector3& origin = c; //射线起始点
-  Vector3& dir = n; //方向矢量
+    float tx1=-(-min.X+c.X)/n.X;
+    float tx2=-(-max.X+c.X)/n.X;
+    float ty1=-(-min.Y+c.Y)/n.Y;
+    float ty2=-(-max.Y+c.Y)/n.Y;
+    float tz1=-(-min.Z+c.Z)/n.Z;
+    float tz2=-(-max.Z+c.Z)/n.Z;
 
-  float t;
+    if ( tx1>tx2 ) swap_float( tx1, tx2 );
+    if ( ty1>ty2 ) swap_float( ty1, ty2 );
+    if ( tz1>tz2 ) swap_float( tz1, tz2 );
 
-  //分别判断射线与各面的相交情况
+    tx1=tx1>ty1?tx1:ty1;
+    tx1=tx1>tz1?tx1:tz1;
 
-  //判断射线与包围盒x轴方向的面是否有交点
-  if (dir.X != 0.f) //射线x轴方向分量不为0 若射线方向矢量的x轴分量为0，射线不可能经过包围盒朝x轴方向的两个面
-  {
-    /*
-      使用射线与平面相交的公式求交点
-     */
-    if (dir.X > 0)//若射线沿x轴正方向偏移
-      t = (min.X - origin.X) / dir.X;
-    else  //射线沿x轴负方向偏移
-      t = (max.X - origin.X) / dir.X;
+    tx2=tx2<ty2?tx2:ty2;
+    tx2=tx2<tz2?tx2:tz2;
 
-    if (t > 0.f) //t>0时则射线与平面相交
-    {
-      ptOnPlane = origin + dir * t; //计算交点坐标
-      //判断交点是否在当前面内
-      if (min.Y < ptOnPlane.Y && ptOnPlane.Y < max.Y && min.Z < ptOnPlane.Z && ptOnPlane.Z < max.Z)
-      {
-        return true; //射线与包围盒有交点
-      }
-    }
-  }
-  //若射线沿y轴方向有分量 判断是否与包围盒y轴方向有交点
-  if (dir.Y != 0.f)
-  {
-    if (dir.Y > 0)
-      t = (min.Y - origin.Y) / dir.Y;
-    else
-      t = (max.Y - origin.Y) / dir.Y;
-
-    if (t > 0.f)
-    {
-      ptOnPlane = origin + dir * t;
-
-      if (min.Z < ptOnPlane.Z && ptOnPlane.Z < max.Z && min.X < ptOnPlane.X && ptOnPlane.X < max.X)
-      {
+    if ( tx1<tx2  ) {
+        float tin=tx1;
+        float tout=tx2;
+        p = c + n * tout;
         return true;
-      }
     }
-  }
+    return false;
+}
 
-  //若射线沿z轴方向有分量 判断是否与包围盒y轴方向有交点
-  if (dir.Z != 0.f)
-  {
-    if (dir.Z > 0)
-      t = (min.Z - origin.Z) / dir.Z;
-    else
-      t = (max.Z - origin.Z) / dir.Z;
-
-    if (t > 0.f)
-    {
-      ptOnPlane = origin + dir * t;
-
-      if (min.X < ptOnPlane.X && ptOnPlane.X < max.X && min.Y < ptOnPlane.Y && ptOnPlane.Y < max.Y)
-      {
-        return true;
-      }
+bool PointSets3D::find_farest_voronoi( array<int,3> pnt, int &max_id ) {
+    // find farest point from Face *tri, marked with max_id
+    float d, dmax;
+    dmax = -1; max_id = 0;
+    for ( int j=0; j<S_id.size(); j++ ) {
+        if ( S_id[j]==pnt[0] || // those points should not be vertices of tri
+             S_id[j]==pnt[1] ||
+             S_id[j]==pnt[2] ) {}
+        else {
+            d = dist_p2plane( S[S_id[j]], S[pnt[0]], S[pnt[1]], S[pnt[2]] );
+            if (dmax<d) { dmax = d; max_id = j; }
+        }
     }
-  }
 
-  return false;
+    if (dmax>0) return true;
+    //else if (dmax==0.0f && !exm_pnts[S_id[max_id]]) return true;
+
+    return false;
 }
-}
-
-int voronoi3d_demo() {
-    srand((unsigned)time(0));
-    //vector<Vector3> s;
-    Triangle TT = Triangle(Vector3(0.0f,0.0f,0.0f),Vector3(1.0f,0.0f,0.0f),
-                    Vector3(0.0f,1.0f,0.0f));
-    printf("center %f %f %f\n",TT.o.X,TT.o.Y,TT.o.Z);
-    Vector3 s[8] = {Vector3(0,0,0),Vector3(1,0,0),
-                    Vector3(0,1,0),Vector3(0,0,1),
-                    Vector3(0.3f,0.3f,0.3f),
-                    Vector3(0.5f,0.5f,0.5f),
-                    Vector3(0.5f,0.5f,1.5f),
-                    Vector3(0.3f,0.8f,0.8f)
-
-    };
-    //Vector3 v;
-    //for(int i=0;i<8;i++) s.push_back( v.Rand_Vector(0,10) );
-
-    PointSets3D PS( s,8 );
-
-    // print S
-    for(int i=0;i<8;i++) printf("(%f %f %f)\n",s[i].X,s[i].Y,s[i].Z);
-
-    PS.Voronoi3d( Vector3(-1,-1,-1),Vector3(2,2,2) );
 
 
+//int voronoi3d_demo() {
+//    srand((unsigned)time(0));
+//    //vector<Vector3> s;
+//    Triangle TT = Triangle(Vector3(0.0f,0.0f,0.0f),Vector3(1.0f,0.0f,0.0f),
+//                    Vector3(0.0f,1.0f,0.0f));
+//    printf("center %f %f %f\n",TT.o.X,TT.o.Y,TT.o.Z);
+//    Vector3 s[8] = {Vector3(0,0,0),Vector3(1,0,0),
+//                    Vector3(0,1,0),Vector3(0,0,1),
+//                    Vector3(0.3f,0.3f,0.3f),
+//                    Vector3(0.5f,0.5f,0.5f),
+//                    Vector3(0.5f,0.5f,1.5f),
+//                    Vector3(0.3f,0.8f,0.8f),
+
+//    };
+//    //Vector3 v;
+//    //for(int i=0;i<8;i++) s.push_back( v.Rand_Vector(0,10) );
+
+//    PointSets3D PS( s,8 );
+
+//    // print S
+//    for(int i=0;i<8;i++) printf("(%f %f %f)\n",s[i].X,s[i].Y,s[i].Z);
+
+//    PS.Voronoi3d( Vector3(-2,-2,-2),Vector3(2,2,2) );
 
 
-    return 0;
-}
+
+
+//    return 0;
+//}

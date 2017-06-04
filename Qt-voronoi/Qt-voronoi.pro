@@ -13,23 +13,16 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        widget.cpp \
     glwidget.cpp \
-    logo.cpp \
     voronoi-3d/src/Vector3.cpp \
-    voronoi-3d/src/Triangle.cpp \
-    voronoi-3d/src/Tetrahedron.cpp \
-    voronoi-3d/src/Line.cpp \
-    voronoi-3d/src/Delaunay.cpp \
     cube.cpp \
     voronoi-3d/src/convhull.cpp \
     voronoi-3d/src/half_edge_manipulation.cpp \
     event.cpp \
     voronoi-3d/src/voronoi3d.cpp
 
-HEADERS  += widget.h \
+HEADERS  += \
     glwidget.h \
-    logo.h \
     voronoi-3d/include/Vector3.h \
     voronoi-3d/include/Triangle.h \
     voronoi-3d/include/Tetrahedron.h \
@@ -38,7 +31,8 @@ HEADERS  += widget.h \
     cube.h \
     voronoi-3d/include/half_edge.h \
     voronoi-3d/include/point_sets.h \
-    event.h
+    event.h \
+    quickhull.h
 
 
 INCLUDEPATH += voronoi-3d/include

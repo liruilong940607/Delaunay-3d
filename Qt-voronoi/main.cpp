@@ -1,4 +1,3 @@
-#include "widget.h"
 #include "glwidget.h"
 #include <QApplication>
 

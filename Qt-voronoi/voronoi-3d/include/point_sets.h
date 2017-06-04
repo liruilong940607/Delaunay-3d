@@ -117,7 +117,7 @@ public:
 
     bool is_hit(Vector3,Vector3,Vector3,Vector3,Vector3&);
 
-
+    bool find_farest_voronoi( array<int,3> pnt, int &max_id );
 
 
     // S is the points set

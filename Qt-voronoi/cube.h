@@ -10,6 +10,7 @@
 #include <vector>
 #include "point_sets.h"
 #include <map>
+
 #define PI 3.141592653589
 #define min(a,b) a<b?a:b
 
@@ -28,10 +29,11 @@ public:
     void set_paint_delauny();
     void set_paint_voronoi_vertics();
     void set_paint_voronoi_cell();
-    void set_paint_voronoi_cell_all();
+    int set_paint_voronoi_cell_all(int idx);
 
     void paint_delauney_process(int step, int type);
     QVector<GLfloat> process_data;
+
     int basic_count;
     QVector<GLfloat> cur_data;
     int cur_count;

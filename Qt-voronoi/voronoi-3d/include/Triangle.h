@@ -13,13 +13,14 @@ using namespace std;
 class Triangle {
 public:
     Vector3 v1, v2, v3;
-    Vector3 o;
-    float r;
+    Vector3 o;  // 外接园圆心
+    float r;   // 外接圆半径
+
     Triangle(Vector3 v1, Vector3 v2, Vector3 v3) {
         this->v1 = v1;
         this->v2 = v2;
         this->v3 = v3;
-        getCenterCircumcircle();
+        getCircumcircle();
     }
     Vector3 getNormal() {
         Vector3 edge1 = Vector3(v2.X-v1.X, v2.Y-v1.Y, v2.Z-v1.Z);
@@ -48,6 +49,7 @@ public:
     /*bool equals(Triangle t) {
         vector<Line> lines1 = this->getLines();
         vector<Line> lines2 = t.getLines();
+
         int cnt = 0;
         for(int i = 0; i < lines1.size(); i++) {
             for(int j = 0; j < lines2.size(); j++) {
@@ -78,95 +80,43 @@ public:
         else
             return false;
     }
-    // 外接circle
-        void getCenterCircumcircle() {
 
-            double A[][3] = {
-                {v2.X - v1.X, v2.Y-v1.Y, v2.Z-v1.Z},
-                {v3.X - v1.X, v3.Y-v1.Y, v3.Z-v1.Z},
+    void getCircumcircle() {
+        Vector3 normal = getNormal();
+
+        double A[][3] = {
+            {v2.X-v1.X, v2.Y-v1.Y, v2.Z-v1.Z},
+            {v3.X-v1.X, v3.Y-v1.Y, v3.Z-v1.Z},
+            {normal.X, normal.Y, normal.Z}
+        };
+        double b[] = {
+            0.5 * (v2.X*v2.X - v1.X*v1.X + v2.Y*v2.Y - v1.Y*v1.Y + v2.Z*v2.Z - v1.Z*v1.Z),
+            0.5 * (v3.X*v3.X - v1.X*v1.X + v3.Y*v3.Y - v1.Y*v1.Y + v3.Z*v3.Z - v1.Z*v1.Z),
+            (normal.X*v1.X + normal.Y*v1.Y + normal.Z*v1.Z)
+        };
+        double x[3] = {0.,0.,0.};
+
+        double det = (v3.X-v1.X) * normal.Y * (v2.Z-v1.Z)+ (v2.X-v1.X) * (v3.Y-v1.Y) * normal.Z + normal.X * (v2.Y-v1.Y) * (v3.Z-v1.Z)
+               - (v2.X-v1.X) * normal.Y *(v3.Z-v1.Z) - (v3.X-v1.X) * (v2.Y-v1.Y) * normal.Z - normal.X * (v3.Y-v1.Y) * (v2.Z-v1.Z);
+
+        if (det == 0) {
+            r = -1;
+        }
+        else {
+            double A_inverse[][3] = {
+                {(v3.Y-v1.Y)*normal.Z-(v3.Z-v1.Z)*normal.Y,  (v2.Z-v1.Z)*normal.Y-(v2.Y-v1.Y)*normal.Z,  (v2.Y-v1.Y)*(v3.Z-v1.Z)-(v2.Z-v1.Z)*(v3.Y-v1.Y)},
+                {(v3.Z-v1.Z)*normal.X-(v3.X-v1.X)*normal.Z,  (v2.X-v1.X)*normal.Z-(v2.Z-v1.Z)*normal.X,  (v3.X-v1.X)*(v2.Z-v1.Z)-(v2.X-v1.X)*(v3.Z-v1.Z)},
+                {(v3.X-v1.X)*normal.Y-(v3.Y-v1.Y)*normal.X,  (v2.Y-v1.Y)*normal.X-(v2.X-v1.X)*normal.Y,  (v2.X-v1.X)*(v3.Y-v1.Y)-(v3.X-v1.X)*(v2.Y-v1.Y)}
             };
-            double b[] = {
-                0.5 * (v2.X*v2.X - v1.X*v1.X + v2.Y*v2.Y - v1.Y*v1.Y + v2.Z*v2.Z - v1.Z*v1.Z),
-                0.5 * (v3.X*v3.X - v1.X*v1.X + v3.Y*v3.Y - v1.Y*v1.Y + v3.Z*v3.Z - v1.Z*v1.Z),
-            };
-            double x[3];
-            if (gauss(A, b, x) == 0) {
-                // o = NULL;
-                r = -1;
-            } else {
-                o = Vector3((float)x[0], (float)x[1], (float)x[2]);
-                r = v1.Distancef(&o);
-            }
-        }
 
-        /** LU分解による方程式の解法 **/
-        double lu(double a[][3], int ip[]) {
-            int n = 2;//a.length;
-            double weight[n];
-
-            for(int k = 0; k < n; k++) {
-                ip[k] = k;
-                double u = 0;
-                for(int j = 0; j < n; j++) {
-                    double t = fabs(a[k][j]);
-                    if (t > u) u = t;
-                }
-                if (u == 0) return 0;
-                weight[k] = 1/u;
+            for (int i=0; i<3; i++) {
+                for (int j=0; j<3; j++)
+                    x[i] += A_inverse[i][j] * b[j];
+                x[i] /= det;
             }
-            double det = 1;
-            for(int k = 0; k < n; k++) {
-                double u = -1;
-                int m = 0;
-                for(int i = k; i < n; i++) {
-                    int ii = ip[i];
-                    double t = fabs(a[ii][k]) * weight[ii];
-                    if(t>u) { u = t; m = i; }
-                }
-                int ik = ip[m];
-                if (m != k) {
-                    ip[m] = ip[k];
-                    ip[k] = ik;
-                    det = -det;
-                }
-                u = a[ik][k];
-                det *= u;
-                if (u == 0) return 0;
-                for (int i = k+1; i < n; i++) {
-                    int ii = ip[i];
-                    double t = (a[ii][k] /= u);
-                    for(int j = k+1; j < n; j++)
-                        a[ii][j] -= t * a[ik][j];
-                }
-            }
-            return det;
+            o = Vector3((float)x[0], (float)x[1], (float)x[2]);
+            r = v1.Distancef(&o);
         }
-        void solve(double a[][3], double b[], int ip[], double x[]) {
-            int n = 2;//a.length;
-            for(int i = 0; i < n; i++) {
-                int ii = ip[i]; double t = b[ii];
-                for (int j = 0; j < i; j++)
-                    t -= a[ii][j] * x[j];
-                x[i] = t;
-            }
-            for (int i = n-1; i >= 0; i--) {
-                double t = x[i];
-                int ii = ip[i];
-                for(int j = i+1; j < n; j++)
-                    t -= a[ii][j] * x[j];
-                x[i] = t / a[ii][i];
-            }
-        }
-        double gauss(double a[][3], double b[], double x[]) {
-            int n = 2;//a.length;
-            int ip[n];
-            double det = lu(a, ip);
-
-            if(det != 0) {
-                solve(a, b, ip, x);
-            }
-            return det;
-        }
-
+    }
 };
 #endif
