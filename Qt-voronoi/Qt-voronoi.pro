@@ -19,7 +19,8 @@ SOURCES += main.cpp\
     voronoi-3d/src/convhull.cpp \
     voronoi-3d/src/half_edge_manipulation.cpp \
     event.cpp \
-    voronoi-3d/src/voronoi3d.cpp
+    voronoi-3d/src/voronoi3d.cpp \
+    quickhull.cpp
 
 HEADERS  += \
     glwidget.h \

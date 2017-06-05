@@ -19,6 +19,10 @@
 
 #include"point_sets.h"
 #include"half_edge.h"
+#ifndef QUICKHULL_IMPLEMENTATION
+#define QUICKHULL_IMPLEMENTATION
+#include "quickhull.h"
+#endif
 
 bool PointSets3D::find_farest( array<int,3> pnt, int &max_id ) {
     // find farest point from Face *tri, marked with max_id
@@ -184,6 +188,9 @@ vector<bool> PointSets3D::get_Extreme_pnts_label() {
 }
 
 vector<array<int,3>> PointSets3D::Quick_Hull3D() {
+    for(int i = 0; i<S.size(); i++){
+        printf("S: %f %f %f\n",S[i].X,S[i].Y,S[i].Z);
+    }
     S_id.clear();
     K.clear(); exm_pnts.clear();
     if (!S.size()) { printf("No points input!"); return K; }
@@ -203,26 +210,74 @@ vector<array<int,3>> PointSets3D::Quick_Hull3D() {
         return K;
         break;
     }
-    // save point indexes to S_id, visit points via indexes
-    for(int i=0; i<S.size(); S_id.push_back(i++));
-    for(int i=0; i<S.size();i++) exm_pnts.push_back(0);
-    stack<Face*> face_stack;
 
-    /*find first nondegenerate polyhedron
-      construct and push 4 faces into stack*/
-    array<int,4> expnt = find_nondegenerate_polyhedron();
-    array<Face*,4> faces = polyhedron(expnt[0],expnt[1],expnt[2],expnt[3]);
-    vector<Face*> f4;
-    for(int i=0;i<4;i++) {
-        face_stack.push(faces[i]);
-        exm_pnts[expnt[i]]=1;
-        f4.push_back(faces[i]);
+    qh_vertex_t vertices[S.size()];
+    for (int i = 0; i < this->S.size(); i++) {
+        vertices[i].x = S[i].X;
+        vertices[i].y = S[i].Y;
+        vertices[i].z = S[i].Z;
     }
+    for(int i=0; i<S.size();i++)
+        exm_pnts.push_back(0);
+    qh_mesh_t m = qh_quickhull3d(vertices, S.size());
+    printf("Quick_Hull3D start\n");
+    printf("Quick_Hull3D size %d\n",S.size());
 
-    kill_points( f4 );
-    /*begin find hull, using iteration until stack is empty*/
-    while( !face_stack.empty() )
-        find_hull( face_stack );
+    for (int i = 0, j = 0; i < m.nindices; i += 3, j++) {
+        if ( m.indices[i+0] < m.nvertices && m.indices[i+1] < m.nvertices && m.indices[i+2] < m.nvertices &&  m.normalindices[j] < m.nnormals ) {
+            qh_vertex_t * v0 = m.vertices + m.indices[i+0];
+            qh_vertex_t * v1 = m.vertices + m.indices[i+1];
+            qh_vertex_t * v2 = m.vertices + m.indices[i+2];
+            Vector3 vec1 = Vector3(float(v0->x),float(v0->y),float(v0->z));
+            Vector3 vec2 = Vector3(float(v1->x),float(v1->y),float(v1->z));
+            Vector3 vec3 = Vector3(float(v2->x),float(v2->y),float(v2->z));
+            int idx1 = -1,idx2 = -1,idx3 = -1;
+            for (int k = 0; k<S.size(); k++){
+                if (S[k].Distancef(&vec1)<0.01){
+                    idx1 = k;
+                    exm_pnts[k] = 1;
+                }
+                if (S[k].Distancef(&vec2)<0.01){
+                    idx2 = k;
+                    exm_pnts[k] = 1;
+                }
+                if (S[k].Distancef(&vec3)<0.01){
+                    idx3 = k;
+                    exm_pnts[k] = 1;
+                }
+            }
+            printf("in Quick_Hull3D, tri is %d %d %d\n",idx1,idx2,idx3);
+            if(idx1==-1 || idx2==-1 || idx3==-1){
+                printf("ERROR: idx to points not right! ");
+            }
+            array<int,3> stri = {idx1,idx2,idx3};
+            K.push_back(stri);
+        }
+    }
+    printf("Quick_Hull3D end\n");
+
+
+
+//    // save point indexes to S_id, visit points via indexes
+//    for(int i=0; i<S.size(); S_id.push_back(i++));
+//    for(int i=0; i<S.size();i++) exm_pnts.push_back(0);
+//    stack<Face*> face_stack;
+
+//    /*find first nondegenerate polyhedron
+//      construct and push 4 faces into stack*/
+//    array<int,4> expnt = find_nondegenerate_polyhedron();
+//    array<Face*,4> faces = polyhedron(expnt[0],expnt[1],expnt[2],expnt[3]);
+//    vector<Face*> f4;
+//    for(int i=0;i<4;i++) {
+//        face_stack.push(faces[i]);
+//        exm_pnts[expnt[i]]=1;
+//        f4.push_back(faces[i]);
+//    }
+
+//    kill_points( f4 );
+//    /*begin find hull, using iteration until stack is empty*/
+//    while( !face_stack.empty() )
+//        find_hull( face_stack );
 
     return K;
 }

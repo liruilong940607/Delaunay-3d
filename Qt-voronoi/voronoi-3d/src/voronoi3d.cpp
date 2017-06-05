@@ -81,6 +81,29 @@ vector<vector<array<Vector3,3>>> PointSets3D::Voronoi3d(Vector3 min, Vector3 max
 //        }
 //    }
 
+    // find out which polytope 8 points belong to
+     float xd = max.X-min.X;
+     float yd = max.Y-min.Y;
+     float zd = max.Z-min.Z;
+     vector<Vector3> cube;
+     cube.push_back( min ); cube.push_back(Vector3(min.X+xd, min.Y,min.Z));
+     cube.push_back(Vector3(min.X,min.Y+yd,min.Z));
+     cube.push_back(Vector3(min.X,min.Y,min.Z+zd));
+     cube.push_back( max ); cube.push_back(Vector3(max.X-xd, max.Y,max.Z));
+     cube.push_back(Vector3(max.X,max.Y-yd,max.Z));
+     cube.push_back(Vector3(max.X,max.Y,max.Z-zd));
+
+     float min_dis; int min_id;
+     float dis;
+     for(int i=0; i<cube.size(); i++) {
+      min_dis=100000000.0f;
+      for(int j=0; j<S.size(); j++) {
+       dis=S[j].Distancef(&cube[i]);
+       if(min_dis>dis) { min_dis=dis; min_id=j; }
+      }
+      polyvec[min_id].push_back(cube[i]);
+     }
+
     // construct polytope
     vector<array<Vector3,3>> trivec;
     PointSets3D plt; array<Vector3,3> a;

@@ -1,6 +1,7 @@
 #include "glwidget.h"
 #include <random>
 #define PI 3.1415926536f
+GLfloat mycolor[10][3];
 
 GLWidget::GLWidget(QWidget * parent, const QGLWidget * shareWidget, Qt::WindowFlags f)
 {
@@ -24,6 +25,11 @@ GLWidget::GLWidget(QWidget * parent, const QGLWidget * shareWidget, Qt::WindowFl
     m_zRot = 0;
 
     process_step = 0;
+    for (int i = 0; i<10; i++){
+        mycolor[i][0] = rand() / double(RAND_MAX);
+        mycolor[i][1] = rand() / double(RAND_MAX);
+        mycolor[i][2] = rand() / double(RAND_MAX);
+    }
 }
 GLWidget::~GLWidget()
 {
@@ -337,19 +343,21 @@ void GLWidget::paint_delauney_process(int step){
     glEnable(GL_LIGHTING);
 
 }
+
 void GLWidget::paint_voronoi_cell_all(){
     glDisable(GL_LIGHTING);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
     int cellsize = m_cube.set_paint_voronoi_cell_all(-1);
-    for(int idx = 0; idx<cellsize; idx++){
+    for(int idx = 0; idx<1; idx++){
         m_cube.set_paint_voronoi_cell_all(idx);
         const GLfloat* data = m_cube.constData();
         glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
-        glColor4f(rand() / double(RAND_MAX),
-                  rand() / double(RAND_MAX),
-                  rand() / double(RAND_MAX),0.4f);
+        glColor4f(mycolor[idx%10][0],
+                  mycolor[idx%10][1],
+                  mycolor[idx%10][2],0.4f);
         glBegin( GL_TRIANGLES );
+        printf("tri size!!!!!????? %d",m_cube.count()/6/3);
         for (int i = 0; i < m_cube.count()/6/3; i++){
             for (int j = 0; j < 3; ++j){
                 GLfloat norm[3] = {data[i*6*3+j*6+3], data[i*6*3+j*6+4], data[i*6*3+j*6+5]};
