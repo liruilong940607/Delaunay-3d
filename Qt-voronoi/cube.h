@@ -33,6 +33,8 @@ public:
 
     void paint_delauney_process(int step, int type);
     QVector<GLfloat> process_data;
+    Vector3 o;
+    float r;
 
     int basic_count;
     QVector<GLfloat> cur_data;

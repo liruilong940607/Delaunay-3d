@@ -254,6 +254,7 @@ vector<array<int,3>> PointSets3D::Quick_Hull3D() {
             K.push_back(stri);
         }
     }
+    qh_free_mesh(m);
     printf("Quick_Hull3D end\n");
 
 

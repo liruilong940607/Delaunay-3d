@@ -1,11 +1,15 @@
 #include "glwidget.h"
 #include <random>
+#ifndef QUICKHULL_IMPLEMENTATION
+#define QUICKHULL_IMPLEMENTATION
+#include "quickhull.h"
+#endif
 #define PI 3.1415926536f
 GLfloat mycolor[10][3];
 
 GLWidget::GLWidget(QWidget * parent, const QGLWidget * shareWidget, Qt::WindowFlags f)
 {
-    eyex = 0; eyey = 0; eyez = 2;
+    eyex = 0; eyey = 0; eyez = 2+5;
     centerx = 0; centery = 0; centerz = 0;
     upx = 0; upy = 1; upz = 0;
 
@@ -201,7 +205,7 @@ void GLWidget::paint_points(){
     glDisable(GL_LIGHTING);
     m_cube.set_paint_delauny();
     const GLfloat* data = m_cube.constData();
-    glPointSize(9.0f);
+    glPointSize(20.0f);
     glColor3f(0.0, 1.0, 0.0);
     glBegin( GL_POINTS );
     for (int i = 0; i < m_cube.count()/3; ++i){
@@ -230,7 +234,7 @@ void GLWidget::paint_points(){
      glDisable(GL_LIGHTING);
      m_cube.set_paint_voronoi_vertics();
      const GLfloat* data = m_cube.constData();
-     glPointSize(14.0f);
+     glPointSize(30.0f);
      glColor3f(1.0, 1.0, 1.0);
      glBegin( GL_POINTS );
      for (int i = 0; i < m_cube.count()/3; ++i){
@@ -312,7 +316,7 @@ void GLWidget::paint_delauney_process(int step){
         printf("SetCurrentPoint \n");
         m_cube.paint_delauney_process(step, 4);
         const GLfloat* data11 = m_cube.constData();
-        glPointSize(14.0f);
+        glPointSize(30.0f);
         glColor3f(1.0, 1.0, 1.0);
         glBegin( GL_POINTS );
         for (int i = 0; i < m_cube.count()/3; ++i){
@@ -324,7 +328,8 @@ void GLWidget::paint_delauney_process(int step){
         m_cube.paint_delauney_process(step, 0);
         const GLfloat* data1 = m_cube.constData();
         glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-        glColor3f(0.0, 1.0, 0.0);
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        glLineWidth(10.0f);
         glBegin( GL_TRIANGLES );
         for (int i = 0; i < m_cube.count()/3; ++i){
             glVertex3f(  data1[i*3+0],  data1[i*3+1],  data1[i*3+2] );
@@ -349,24 +354,96 @@ void GLWidget::paint_voronoi_cell_all(){
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
     int cellsize = m_cube.set_paint_voronoi_cell_all(-1);
-    for(int idx = 0; idx<1; idx++){
+
+    glPushMatrix();
+    glColor4f(0.0f, 0.0f, 1.0f, .8f);
+    glLineWidth(10.0f);
+    glTranslatef(m_cube.o.X, m_cube.o.Y, m_cube.o.Z);
+    glutWireSphere(m_cube.r, 20, 20);
+    glPopMatrix();
+
+    for(int idx = 0; idx<cellsize; idx++){
         m_cube.set_paint_voronoi_cell_all(idx);
         const GLfloat* data = m_cube.constData();
+        glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        glLineWidth(10.0f);
+        glBegin( GL_LINES );
+
+        glVertex3f(2.0f, 2.0f, 2.0f);
+        glVertex3f(-2.0f, 2.0f, 2.0f);
+
+        glVertex3f(2.0f, -2.0f, 2.0f);
+        glVertex3f(-2.0f, -2.0f, 2.0f);
+
+        glVertex3f(2.0f, 2.0f, -2.0f);
+        glVertex3f(-2.0f, 2.0f, -2.0f);
+
+        glVertex3f(2.0f, -2.0f, -2.0f);
+        glVertex3f(-2.0f, -2.0f, -2.0f);
+
+        glVertex3f(2.0f, 2.0f, 2.0f);
+        glVertex3f(2.0f, -2.0f, 2.0f);
+
+        glVertex3f(-2.0f, 2.0f, 2.0f);
+        glVertex3f(-2.0f, -2.0f, 2.0f);
+
+        glVertex3f(2.0f, 2.0f, -2.0f);
+        glVertex3f(2.0f, -2.0f, -2.0f);
+
+        glVertex3f(-2.0f, 2.0f, -2.0f);
+        glVertex3f(-2.0f, -2.0f, -2.0f);
+
+        glVertex3f(2.0f, 2.0f, 2.0f);
+        glVertex3f(2.0f, 2.0f, -2.0f);
+
+        glVertex3f(-2.0f, 2.0f, 2.0f);
+        glVertex3f(-2.0f, 2.0f, -2.0f);
+
+        glVertex3f(2.0f, -2.0f, 2.0f);
+        glVertex3f(2.0f, -2.0f, -2.0f);
+
+        glVertex3f(-2.0f, -2.0f, 2.0f);
+        glVertex3f(-2.0f, -2.0f, -2.0f);
+
+
+        glEnd();
+
+        glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+        glLineWidth(10.0f);
+        glBegin( GL_TRIANGLES );
+        printf("tri size!!!!!????? %d",m_cube.count()/6/3);
+        for (int i = 0; i < m_cube.count()/6/3; i++){
+            for (int j = 0; j < 3; ++j){
+//                if (abs(data[i*6*3+j*6+0])==2)
+//                    continue;
+                glVertex3f(data[i*6*3+j*6+0],  data[i*6*3+j*6+1],  data[i*6*3+j*6+2] );
+
+            }
+        }
+        glEnd();
         glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
         glColor4f(mycolor[idx%10][0],
                   mycolor[idx%10][1],
-                  mycolor[idx%10][2],0.4f);
+                  mycolor[idx%10][2],0.3f);
         glBegin( GL_TRIANGLES );
         printf("tri size!!!!!????? %d",m_cube.count()/6/3);
         for (int i = 0; i < m_cube.count()/6/3; i++){
             for (int j = 0; j < 3; ++j){
                 GLfloat norm[3] = {data[i*6*3+j*6+3], data[i*6*3+j*6+4], data[i*6*3+j*6+5]};
+//                if (abs(data[i*6*3+j*6+0])==2)
+//                    continue;
                 glNormal3fv(norm);
                 glVertex3f(data[i*6*3+j*6+0],  data[i*6*3+j*6+1],  data[i*6*3+j*6+2] );
 
             }
         }
         glEnd();
+
+
+
+
     }
     glEnable(GL_LIGHTING);
 }

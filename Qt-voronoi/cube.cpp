@@ -8,7 +8,7 @@ float random(float start, float end){
 }
 Cube::Cube()
 {
-    delaunayPointsCount = 6;
+    delaunayPointsCount = 20;
     m_count = 0;
     basic_count = 0;
     vec = SetPointsDelaunay();
@@ -19,9 +19,9 @@ Cube::Cube()
 
     ps3d.Voronoi3d(Vector3(-2.0f,-2.0f,-2.0f),Vector3(2.0f,2.0f,2.0f));
     polytope = ps3d.Polytope;
-    //int idx = ps3d.get_Biggest_Inscribed_Circle();
-    //Vector3 o = ps3d.dln.tetras[idx].o;
-    //float r = ps3d.dln.tetras[idx].r;
+    int idx = ps3d.get_Biggest_Inscribed_Circle();
+    o = ps3d.dln.tetras[idx].o;
+    r = ps3d.dln.tetras[idx].r;
     //d.SetData(vec);
 
 
@@ -232,21 +232,21 @@ int Cube::set_paint_voronoi_cell_all(int idx){
 
 std::vector<Vector3> Cube::SetPointsDelaunay(){
     std::vector<Vector3> vec;
-//    for (int i = 0; i < this->delaunayPointsCount; i++) {
-//      float r = random(0.0, 0.5f);
-//      float phi = random(-90, 90)/180.0*PI;
-//      float theta = random(0, 360)/180.0*PI;
-//      vec.push_back(Vector3(
-//        float(r*cos(phi)*cos(theta)),
-//        float(r*sin(phi)),
-//        float(r*cos(phi)*sin(theta))));
-//    }
-     vec.push_back(Vector3(1.0f, 0.0f, 0.0f));
-     vec.push_back(Vector3(-1.0f, 0.0f, 0.0f));
-     vec.push_back(Vector3(0.0f, 0.5f, 0.0f));
-     vec.push_back(Vector3(0.0f, -0.5f, 0.0f));
-     vec.push_back(Vector3(0.0f, 0.0f, 1.0f));
-     vec.push_back(Vector3(0.0f, 0.0f, -1.0f));
+    for (int i = 0; i < this->delaunayPointsCount; i++) {
+      float r = random(0.0, 1.0f);
+      float phi = random(-90, 90)/180.0*PI;
+      float theta = random(0, 360)/180.0*PI;
+      vec.push_back(Vector3(
+        random(-1.0f, 1.0f),
+        random(-1.0f, 1.0f),
+        random(-1.0f, 1.0f)));
+    }
+//     vec.push_back(Vector3(1.7f, 0.0f, 1.7f));
+//     vec.push_back(Vector3(1.7f, 0.0f, -1.7f));
+//     vec.push_back(Vector3(0.0f, 1.0f, 0.0f));
+//     vec.push_back(Vector3(0.0f, -1.0f, 0.0f));
+//     vec.push_back(Vector3(-1.7f, 0.0f, 1.7f));
+//     vec.push_back(Vector3(-1.7f, 0.0f, -1.7f));
 //    vec.push_back(Vector3(0.0f, 0.0f, 0.0f));
 //    vec.push_back(Vector3(1.0f, 0.0f, 0.0f));
 //    vec.push_back(Vector3(0.0f, 1.0f, 0.0f));

@@ -5,9 +5,10 @@
 #include"point_sets.h"
 #include"Tetrahedron.h"
 #include<time.h>
-
-
-
+#ifndef QUICKHULL_IMPLEMENTATION
+#define QUICKHULL_IMPLEMENTATION
+#include "quickhull.h"
+#endif
 
 vector<vector<array<Vector3,3>>> PointSets3D::Voronoi3d(Vector3 min, Vector3 max){
     if(!Polytope.empty()) return Polytope;
@@ -32,7 +33,47 @@ vector<vector<array<Vector3,3>>> PointSets3D::Voronoi3d(Vector3 min, Vector3 max
             polyvec[i].push_back( dln.tetras[polyindex[i][j]].o );
     }
 
-    //find out tetrahedron on the convhull
+    // find out which polytope cube's 8 points belong to
+    float xd = max.X-min.X;
+    float yd = max.Y-min.Y;
+    float zd = max.Z-min.Z;
+    vector<Vector3> cube;
+    cube.push_back( min ); cube.push_back(Vector3(min.X+xd, min.Y,min.Z));
+    cube.push_back(Vector3(min.X,min.Y+yd,min.Z));
+    cube.push_back(Vector3(min.X,min.Y,min.Z+zd));
+    cube.push_back( max ); cube.push_back(Vector3(max.X-xd, max.Y,max.Z));
+    cube.push_back(Vector3(max.X,max.Y-yd,max.Z));
+    cube.push_back(Vector3(max.X,max.Y,max.Z-zd));
+    vector<Line> Segment;
+    Segment.push_back(Line(cube[0],cube[1]));
+    Segment.push_back(Line(cube[0],cube[2]));
+    Segment.push_back(Line(cube[1],cube[7]));
+    Segment.push_back(Line(cube[7],cube[2]));
+    Segment.push_back(Line(cube[5],cube[4]));
+    Segment.push_back(Line(cube[4],cube[6]));
+    Segment.push_back(Line(cube[6],cube[3]));
+    Segment.push_back(Line(cube[3],cube[5]));
+    Segment.push_back(Line(cube[1],cube[6]));
+    Segment.push_back(Line(cube[7],cube[4]));
+    Segment.push_back(Line(cube[2],cube[5]));
+    Segment.push_back(Line(cube[0],cube[3]));
+
+    float min_dis; int min_id;
+    float dis; vector<float> Dis;
+    for(int i=0; i<cube.size(); i++) {
+        Dis.clear();
+        min_dis=100000000.0f;
+        for(int j=0; j<S.size(); j++) {
+            dis=S[j].Distancef(&cube[i]);
+            Dis.push_back( dis );
+            if(min_dis>dis) { min_dis=dis; min_id=j; }
+        }
+        for(int j=0; j<Dis.size(); j++)
+            if(Dis[j]==min_dis)
+                polyvec[j].push_back(cube[i]);
+    }
+
+    // find out intersect point of polytope with cube's segments and plane
     Vector3 p; vector<int> v; int p_in;
     if(K.empty()) Quick_Hull3D();
     for( int i=0;i<TETRA.size();i++) {
@@ -52,14 +93,34 @@ vector<vector<array<Vector3,3>>> PointSets3D::Voronoi3d(Vector3 min, Vector3 max
         for (int j = 0; j< 4; j++){
             Vector3 p;
             int max_id = 0;
-            if (find_farest_voronoi( tris[j], max_id ))
+            //find out tetrahedron on the convhull
+            if (find_farest_voronoi( tris[j], max_id )) {
                 reverse(tris[j]);
                 if (find_farest_voronoi( tris[j], max_id ))
                     continue;
+            }
+            // find out intersect of Ray and cube's plane
             Triangle t = Triangle(S[tris[j][0]],S[tris[j][1]],S[tris[j][2]]);
             printf("%d\n", i);
-            if(is_hit(t.o,t.getNormal(),min,max,p))
+            if(is_hit(t.o,t.getNormal(),min,max,p)){
+                printf("ppppppp: %f %f %f\n",p.X,p.Y,p.Z);
                 for(int k=0;k<3;k++) polyvec[tris[j][k]].push_back(p);
+            }
+            // find out intersect of Polytope's plane and cube's segment
+            Vector3 I;
+            for(int k=0;k<3;k++) {
+                Vector3 V0 = (S[tris[j][k]]+S[tris[j][(k+1)%3]])*0.5f;
+                Vector3 n = (S[tris[j][k]]-S[tris[j][(k+1)%3]]).Normalize();
+                for(int s=0;s<Segment.size();s++) {
+                    if(intersect3D_SegmentPlane(Segment[s].start,Segment[s].end,V0,n,&I)==1) {
+                        int id = find_nearest_id( I );
+                        if(id==tris[j][k] || id==tris[j][(k+1)%3]) {
+                            polyvec[tris[j][k]].push_back(I);
+                            polyvec[tris[j][(k+1)%3]].push_back(I);
+                        }
+                    }
+                }
+            }
         }
 
     }
@@ -81,28 +142,6 @@ vector<vector<array<Vector3,3>>> PointSets3D::Voronoi3d(Vector3 min, Vector3 max
 //        }
 //    }
 
-    // find out which polytope 8 points belong to
-     float xd = max.X-min.X;
-     float yd = max.Y-min.Y;
-     float zd = max.Z-min.Z;
-     vector<Vector3> cube;
-     cube.push_back( min ); cube.push_back(Vector3(min.X+xd, min.Y,min.Z));
-     cube.push_back(Vector3(min.X,min.Y+yd,min.Z));
-     cube.push_back(Vector3(min.X,min.Y,min.Z+zd));
-     cube.push_back( max ); cube.push_back(Vector3(max.X-xd, max.Y,max.Z));
-     cube.push_back(Vector3(max.X,max.Y-yd,max.Z));
-     cube.push_back(Vector3(max.X,max.Y,max.Z-zd));
-
-     float min_dis; int min_id;
-     float dis;
-     for(int i=0; i<cube.size(); i++) {
-      min_dis=100000000.0f;
-      for(int j=0; j<S.size(); j++) {
-       dis=S[j].Distancef(&cube[i]);
-       if(min_dis>dis) { min_dis=dis; min_id=j; }
-      }
-      polyvec[min_id].push_back(cube[i]);
-     }
 
     // construct polytope
     vector<array<Vector3,3>> trivec;
@@ -127,10 +166,42 @@ int PointSets3D::get_Biggest_Inscribed_Circle() {
     if(dln.tetras.empty()) delaunay();
 
     float max_r = 0.0; int max_id = 0;
-    for(int i=0;i<dln.tetras.size();i++)
+    for(int i=0;i<dln.tetras.size();i++){
+        Vector3 center = dln.tetras[i].o;
+        float r = dln.tetras[i].r;
+        if (abs(center.X-2.0f)<r)
+            continue;
+        if (abs(center.X+2.0f)<r)
+            continue;
+        if (abs(center.Y-2.0f)<r)
+            continue;
+        if (abs(center.Y+2.0f)<r)
+            continue;
+        if (abs(center.Z-2.0f)<r)
+            continue;
+        if (abs(center.Z+2.0f)<r)
+            continue;
         if(dln.tetras[i].r>max_r) {max_r=dln.tetras[i].r;max_id=i;}
+    }
 
     return max_id;
+}
+bool PointSets3D::ishas3tri(Triangle tri, Vector3 p){
+    Triangle tri1 = Triangle(tri.v1,tri.v2,p);
+    Triangle tri2 = Triangle(tri.v1,tri.v3,p);
+    Triangle tri3 = Triangle(tri.v3,tri.v2,p);
+    bool samenum[3] = {0,0,0};
+    for (int i = 0; i<dln.triangles.size(); i++){
+        if(dln.triangles[i].equals(tri1))
+            samenum[0] = 1;
+        if(dln.triangles[i].equals(tri2))
+            samenum[1] = 1;
+        if(dln.triangles[i].equals(tri3))
+            samenum[2] = 1;
+    }
+    if(samenum[0]+samenum[0]+samenum[0]==3)
+        return true;
+    return false;
 }
 
 vector<Tetrahedron> PointSets3D::delaunay() {
@@ -140,7 +211,49 @@ vector<Tetrahedron> PointSets3D::delaunay() {
     for(int i=0;i<S.size();i++) S[i].index=i;
 
     dln.SetData( S );
-
+    qh_vertex_t vertices[S.size()];
+    for (int i = 0; i < this->S.size(); i++) {
+        vertices[i].x = S[i].X;
+        vertices[i].y = S[i].Y;
+        vertices[i].z = S[i].Z;
+    }
+    qh_mesh_t m = qh_quickhull3d(vertices, S.size());
+    for (int i = 0, j = 0; i < m.nindices; i += 3, j++) {
+        if ( m.indices[i+0] < m.nvertices && m.indices[i+1] < m.nvertices && m.indices[i+2] < m.nvertices &&  m.normalindices[j] < m.nnormals ) {
+            qh_vertex_t * v0 = m.vertices + m.indices[i+0];
+            qh_vertex_t * v1 = m.vertices + m.indices[i+1];
+            qh_vertex_t * v2 = m.vertices + m.indices[i+2];
+            Vector3 vec1 = Vector3(float(v0->x),float(v0->y),float(v0->z));
+            Vector3 vec2 = Vector3(float(v1->x),float(v1->y),float(v1->z));
+            Vector3 vec3 = Vector3(float(v2->x),float(v2->y),float(v2->z));
+            for (int k = 0; k < this->S.size(); k++) {
+                if (vec1.Distancef(&S[k])<0.0001)
+                    vec1.index = S[k].index;
+                if (vec2.Distancef(&S[k])<0.0001)
+                    vec2.index = S[k].index;
+                if (vec3.Distancef(&S[k])<0.0001)
+                    vec3.index = S[k].index;
+            }
+            bool is_need = true;
+            for (int m = 0; m<dln.triangles.size(); m++){
+                if(Triangle(vec1 ,vec2, vec3).equals(dln.triangles[m])){
+                    is_need = false;
+                    break;
+                }
+            }
+            if(is_need){
+                printf("need!!!!!!!!!!!!!!!!!");
+                for(int n = 0; n<S.size(); n++){
+                    if(ishas3tri(Triangle(vec1 ,vec2, vec3), S[i])){
+                        printf("add!!!!!");
+                          dln.tetras.push_back(Tetrahedron(vec1,vec2,vec3,S[i]));
+                    }
+                }
+            }
+        }
+    }
+    printf("in delaunay.");
+    qh_free_mesh(m);
     TETRA.clear();
     for(int i=0;i<dln.tetras.size();i++) {
         TETRA.push_back(dln.tetras[i].getVerticesIndex());
@@ -163,6 +276,25 @@ bool PointSets3D::is_hit(Vector3 c,Vector3 n,Vector3 min,Vector3 max,Vector3 &p)
     float ty2=-(-max.Y+c.Y)/n.Y;
     float tz1=-(-min.Z+c.Z)/n.Z;
     float tz2=-(-max.Z+c.Z)/n.Z;
+
+    if (-(-min.X+c.X)<0 && n.X==0) tx1 = -10000.0f;
+    if (-(-min.X+c.X)>0 && n.X==0) tx1 = 10000.0f;
+
+    if (-(-max.X+c.X)<0 && n.X==0) tx2 = -10000.0f;
+    if (-(-max.X+c.X)>0 && n.X==0) tx2 = 10000.0f;
+
+    if (-(-min.Y+c.Y)<0 && n.Y==0) ty1 = -10000.0f;
+    if (-(-min.Y+c.Y)>0 && n.Y==0) ty1 = 10000.0f;
+
+    if (-(-max.Y+c.Y)<0 && n.Y==0) ty2 = -10000.0f;
+    if (-(-max.Y+c.Y)>0 && n.Y==0) ty2 = 10000.0f;
+
+    if (-(-min.Z+c.Z)<0 && n.Z==0) tz1 = -10000.0f;
+    if (-(-min.Z+c.Z)>0 && n.Z==0) tz1 = 10000.0f;
+
+    if (-(-max.Z+c.Z)<0 && n.Z==0) tz2 = -10000.0f;
+    if (-(-max.Z+c.Z)>0 && n.Z==0) tz2 = 10000.0f;
+
 
     if ( tx1>tx2 ) swap_float( tx1, tx2 );
     if ( ty1>ty2 ) swap_float( ty1, ty2 );
@@ -187,12 +319,12 @@ bool PointSets3D::find_farest_voronoi( array<int,3> pnt, int &max_id ) {
     // find farest point from Face *tri, marked with max_id
     float d, dmax;
     dmax = -1; max_id = 0;
-    for ( int j=0; j<S_id.size(); j++ ) {
-        if ( S_id[j]==pnt[0] || // those points should not be vertices of tri
-             S_id[j]==pnt[1] ||
-             S_id[j]==pnt[2] ) {}
+    for ( int j=0; j<S.size(); j++ ) {
+        if ( j==pnt[0] || // those points should not be vertices of tri
+             j==pnt[1] ||
+             j==pnt[2] ) {}
         else {
-            d = dist_p2plane( S[S_id[j]], S[pnt[0]], S[pnt[1]], S[pnt[2]] );
+            d = dist_p2plane( S[j], S[pnt[0]], S[pnt[1]], S[pnt[2]] );
             if (dmax<d) { dmax = d; max_id = j; }
         }
     }
@@ -203,33 +335,71 @@ bool PointSets3D::find_farest_voronoi( array<int,3> pnt, int &max_id ) {
     return false;
 }
 
+int PointSets3D::find_nearest_id( Vector3 p ){
+    float min_dis; int min_id;
+    float dis;
+    min_dis=100000000.0f;
+    for(int j=0; j<S.size(); j++) {
+        dis=S[j].Distancef(&p);
+        if(min_dis>dis) { min_dis=dis; min_id=j; }
+    }
+    return min_id;
+}
 
-//int voronoi3d_demo() {
-//    srand((unsigned)time(0));
-//    //vector<Vector3> s;
-//    Triangle TT = Triangle(Vector3(0.0f,0.0f,0.0f),Vector3(1.0f,0.0f,0.0f),
-//                    Vector3(0.0f,1.0f,0.0f));
-//    printf("center %f %f %f\n",TT.o.X,TT.o.Y,TT.o.Z);
-//    Vector3 s[8] = {Vector3(0,0,0),Vector3(1,0,0),
-//                    Vector3(0,1,0),Vector3(0,0,1),
-//                    Vector3(0.3f,0.3f,0.3f),
-//                    Vector3(0.5f,0.5f,0.5f),
-//                    Vector3(0.5f,0.5f,1.5f),
-//                    Vector3(0.3f,0.8f,0.8f),
+int PointSets3D::intersect3D_SegmentPlane( Vector3 P0, Vector3 P1, Vector3 V0, Vector3 n, Vector3* I )
+{
+    Vector3    u = P1 - P0;
+    Vector3    w = P0 - V0;
 
-//    };
-//    //Vector3 v;
-//    //for(int i=0;i<8;i++) s.push_back( v.Rand_Vector(0,10) );
+    float     D = n.dot(u);
+    float     N = -n.dot(w);
 
-//    PointSets3D PS( s,8 );
+    if (fabs(D) < 0.00000001) {           // segment is parallel to plane
+        if (N == 0)                      // segment lies in plane
+            return 2;
+        else
+            return 0;                    // no intersection
+    }
+    // they are not parallel
+    // compute intersect param
+    float sI = N / D;
+    if (sI < 0 || sI > 1)
+        return 0;                        // no intersection
 
-//    // print S
-//    for(int i=0;i<8;i++) printf("(%f %f %f)\n",s[i].X,s[i].Y,s[i].Z);
+    *I = P0 + u * sI;                  // compute segment intersect point
+    return 1;
+}
 
-//    PS.Voronoi3d( Vector3(-2,-2,-2),Vector3(2,2,2) );
+int voronoi3d_demo() {
+    srand((unsigned)time(0));
+    //vector<Vector3> s;
+    Triangle TT = Triangle(Vector3(0.0f,0.0f,0.0f),Vector3(1.0f,0.0f,0.0f),
+                    Vector3(0.0f,1.0f,0.0f));
+    printf("center %f %f %f\n",TT.o.X,TT.o.Y,TT.o.Z);
+    /*Vector3 s[8] = {Vector3(0,0,0),Vector3(1,0,0),
+                   Vector3(0,1,0),Vector3(0,0,1),
+                    Vector3(0.3f,0.3f,0.3f),
+                    Vector3(0.5f,0.5f,0.5f),
+                    Vector3(0.5f,0.5f,1.5f),
+                    Vector3(0.3f,0.8f,0.8f),
+
+    };*/
+    Vector3 s[6] = {Vector3(1,0,0),Vector3(-1,0,0),
+                   Vector3(0.f,0.5f,0.f),Vector3(0.f,-0.5f,0.f),
+                    Vector3(0.f,0.f,1.f),
+                    Vector3(0.f,0.f,-1.f),
 
 
+    };
+    //Vector3 v;
+    //for(int i=0;i<8;i++) s.push_back( v.Rand_Vector(0,10) );
 
+    PointSets3D PS( s,6 );
 
-//    return 0;
-//}
+    // print S
+    for(int i=0;i<6;i++) printf("(%f %f %f)\n",s[i].X,s[i].Y,s[i].Z);
+
+    PS.Voronoi3d( Vector3(-2,-2,-2),Vector3(2,2,2) );
+
+    return 0;
+}

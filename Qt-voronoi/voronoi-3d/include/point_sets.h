@@ -134,7 +134,10 @@ public:
     Delaunay dln;
     vector<vector<array<Vector3,3>>> Polytope;//polytope returned by voronoi3d, restricted by viewport
 
+    int find_nearest_id( Vector3 p );
+    int intersect3D_SegmentPlane( Vector3 P0, Vector3 P1, Vector3 V0, Vector3 n, Vector3* I );
 
+    bool ishas3tri(Triangle tri, Vector3 p);
 
 
 };
