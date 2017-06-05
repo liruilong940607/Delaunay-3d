@@ -53,6 +53,7 @@ private:
     void add(const Vector3 &v, QVector<GLfloat> data, int &count);
 
 
+
 };
 
 #endif // CUBE_H
