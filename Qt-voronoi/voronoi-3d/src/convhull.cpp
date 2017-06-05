@@ -91,45 +91,40 @@ void PointSets3D::find_hull( stack<Face*> &face_stack ) {
             e.push_back( edge[2]->dual->succ->dual );
             e.push_back( edge[2]->dual->pred->dual );
             envolope.push_back(edge[2]->dual->tri);
-            t = envolope[envolope.size()-1]->getVertex(); printf("faces added to envo:%d %d %d\n",t[0],t[1],t[2]);
+            t = envolope[envolope.size()-1]->getVertex();
         }
         else e.push_back(edge[2]->dual);
 
         for(int i=0;i<envolope.size();i++) {
             t = envolope[i]->getVertex();
-            printf("faces in envo before crop and reverse:%d %d %d\n",t[0],t[1],t[2]);
             //crop(envolope[i]);envolope[i]->reverse();
         }
 
         //reverse faces in envolope to kill
         for(int i=0;i<envolope.size();i++) {
             t = envolope[i]->getVertex();
-            printf("faces in envo before stitch:%d %d %d\n",t[0],t[1],t[2]);
             crop(envolope[i]);envolope[i]->reverse();
         }
 
         Vertex *v = new Vertex(S_id[max_id]);
-        printf("edges to be stitched:\n");
-        for(int i=0;i<e.size();i++) printf("%d\n",e[i]->v->id);
 
         stitch( v, e );
 
         for(int i=0;i<envolope.size();i++) {
             t = envolope[i]->getVertex();
-            printf("faces in envo after stitch:%d %d %d\n",t[0],t[1],t[2]);
             //crop(envolope[i]);envolope[i]->reverse();
         }
 
         Edge *ed = v->one_edge;
         do {
-            t = ed->tri->getVertex(); printf("new faces after stitch:%d %d %d\n",t[0],t[1],t[2]);
+            t = ed->tri->getVertex();
             ed = ed->pred->dual;
         }
         while(ed!=v->one_edge);
 
         ed = v->one_edge;
         do {
-            t = ed->tri->getVertex(); printf("new faces after stitch:%d %d %d\n",t[0],t[1],t[2]);
+            t = ed->tri->getVertex();
             ed = ed->pred->dual;
         }
         while(ed!=v->one_edge);
@@ -137,7 +132,7 @@ void PointSets3D::find_hull( stack<Face*> &face_stack ) {
         //generate new faces, push into stack and kill points
         ed = v->one_edge;
         do {
-            t = ed->tri->getVertex(); printf("new faces:%d %d %d\n",t[0],t[1],t[2]);
+            t = ed->tri->getVertex();
             face_stack.push(ed->tri);
             envolope.push_back( ed->tri );
             ed = ed->pred->dual;
@@ -188,9 +183,6 @@ vector<bool> PointSets3D::get_Extreme_pnts_label() {
 }
 
 vector<array<int,3>> PointSets3D::Quick_Hull3D() {
-    for(int i = 0; i<S.size(); i++){
-        printf("S: %f %f %f\n",S[i].X,S[i].Y,S[i].Z);
-    }
     S_id.clear();
     K.clear(); exm_pnts.clear();
     if (!S.size()) { printf("No points input!"); return K; }
@@ -220,8 +212,6 @@ vector<array<int,3>> PointSets3D::Quick_Hull3D() {
     for(int i=0; i<S.size();i++)
         exm_pnts.push_back(0);
     qh_mesh_t m = qh_quickhull3d(vertices, S.size());
-    printf("Quick_Hull3D start\n");
-    printf("Quick_Hull3D size %d\n",S.size());
 
     for (int i = 0, j = 0; i < m.nindices; i += 3, j++) {
         if ( m.indices[i+0] < m.nvertices && m.indices[i+1] < m.nvertices && m.indices[i+2] < m.nvertices &&  m.normalindices[j] < m.nnormals ) {
@@ -246,7 +236,6 @@ vector<array<int,3>> PointSets3D::Quick_Hull3D() {
                     exm_pnts[k] = 1;
                 }
             }
-            printf("in Quick_Hull3D, tri is %d %d %d\n",idx1,idx2,idx3);
             if(idx1==-1 || idx2==-1 || idx3==-1){
                 printf("ERROR: idx to points not right! ");
             }
@@ -255,31 +244,6 @@ vector<array<int,3>> PointSets3D::Quick_Hull3D() {
         }
     }
     qh_free_mesh(m);
-    printf("Quick_Hull3D end\n");
-
-
-
-//    // save point indexes to S_id, visit points via indexes
-//    for(int i=0; i<S.size(); S_id.push_back(i++));
-//    for(int i=0; i<S.size();i++) exm_pnts.push_back(0);
-//    stack<Face*> face_stack;
-
-//    /*find first nondegenerate polyhedron
-//      construct and push 4 faces into stack*/
-//    array<int,4> expnt = find_nondegenerate_polyhedron();
-//    array<Face*,4> faces = polyhedron(expnt[0],expnt[1],expnt[2],expnt[3]);
-//    vector<Face*> f4;
-//    for(int i=0;i<4;i++) {
-//        face_stack.push(faces[i]);
-//        exm_pnts[expnt[i]]=1;
-//        f4.push_back(faces[i]);
-//    }
-
-//    kill_points( f4 );
-//    /*begin find hull, using iteration until stack is empty*/
-//    while( !face_stack.empty() )
-//        find_hull( face_stack );
-
     return K;
 }
 

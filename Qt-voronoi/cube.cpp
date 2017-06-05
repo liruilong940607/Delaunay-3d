@@ -8,7 +8,7 @@ float random(float start, float end){
 }
 Cube::Cube()
 {
-    delaunayPointsCount = 20;
+    delaunayPointsCount = 6;
     m_count = 0;
     basic_count = 0;
     vec = SetPointsDelaunay();
@@ -22,7 +22,6 @@ Cube::Cube()
     int idx = ps3d.get_Biggest_Inscribed_Circle();
     o = ps3d.dln.tetras[idx].o;
     r = ps3d.dln.tetras[idx].r;
-    //d.SetData(vec);
 
 
 }
@@ -162,10 +161,6 @@ void Cube::set_paint_voronoi_cell(){
             qh_vertex_t * v1 = m.vertices + m.indices[i+1];
             qh_vertex_t * v2 = m.vertices + m.indices[i+2];
 
-            printf("j: %d, x,y.z: %f %f %f\n",j,v0->x, v0->y, v0->z);
-            printf("j: %d, x,y.z: %f %f %f\n",j,v1->x, v1->y, v1->z);
-            printf("j: %d, x,y.z: %f %f %f\n",j,v2->x, v2->y, v2->z);
-
             Vector3 vec1 = Vector3(float(v0->x),float(v0->y),float(v0->z));
             Vector3 vec2 = Vector3(float(v1->x),float(v1->y),float(v1->z));
             Vector3 vec3 = Vector3(float(v2->x),float(v2->y),float(v2->z));
@@ -177,29 +172,6 @@ void Cube::set_paint_voronoi_cell(){
 
         }
     }
-
-
-
-
-//    //PointSets3D quickhull = PointSets3D( vec );
-//    printf("polytope size: %d\n",ps3d.Polytope.size());
-//    vector<array<Vector3,3>> quickhull_index = polytope[0];
-//    m_data.resize(quickhull_index.size() * 3 * 6);
-//    printf("polytope[0] size: %d\n",ps3d.Polytope[0].size());
-//    for (int i = 0; i < quickhull_index.size(); ++i)
-//    {
-//        Vector3 v1 = quickhull_index[i][0];
-//        Vector3 v2 = quickhull_index[i][1];
-//        Vector3 v3 = quickhull_index[i][2];
-//        printf("v1: %f %f %f\n",v1.X, v1.Y, v1.Z);
-//        printf("v2: %f %f %f\n",v2.X, v2.Y, v2.Z);
-//        printf("v3: %f %f %f\n",v3.X, v3.Y, v3.Z);
-//        printf("=============\n");
-//        Vector3 norm = Triangle(v1,v2,v3).getNormal();
-//        add(v1, norm);
-//        add(v2, norm);
-//        add(v3, norm);
-//    }
 }
 int Cube::set_paint_voronoi_cell_all(int idx){
     if (idx==-1)
@@ -209,20 +181,13 @@ int Cube::set_paint_voronoi_cell_all(int idx){
     /*
      * test quickhull
      */
-    //PointSets3D quickhull = PointSets3D( vec );
-    printf("polytope size: %d\n",ps3d.Polytope.size());
     vector<array<Vector3,3>> quickhull_index = polytope[idx];
     m_data.resize(quickhull_index.size() * 3 * 6);
-    printf("polytope[0] size: %d\n",ps3d.Polytope[0].size());
     for (int i = 0; i < quickhull_index.size(); ++i)
     {
         Vector3 v1 = quickhull_index[i][0];
         Vector3 v2 = quickhull_index[i][1];
         Vector3 v3 = quickhull_index[i][2];
-        printf("v1: %f %f %f\n",v1.X, v1.Y, v1.Z);
-        printf("v2: %f %f %f\n",v2.X, v2.Y, v2.Z);
-        printf("v3: %f %f %f\n",v3.X, v3.Y, v3.Z);
-        printf("=============\n");
         Vector3 norm = Triangle(v1,v2,v3).getNormal();
         add(v1, norm);
         add(v2, norm);
@@ -232,29 +197,22 @@ int Cube::set_paint_voronoi_cell_all(int idx){
 
 std::vector<Vector3> Cube::SetPointsDelaunay(){
     std::vector<Vector3> vec;
-    for (int i = 0; i < this->delaunayPointsCount; i++) {
-      float r = random(0.0, 1.0f);
-      float phi = random(-90, 90)/180.0*PI;
-      float theta = random(0, 360)/180.0*PI;
-      vec.push_back(Vector3(
-        random(-1.0f, 1.0f),
-        random(-1.0f, 1.0f),
-        random(-1.0f, 1.0f)));
-    }
-//     vec.push_back(Vector3(1.7f, 0.0f, 1.7f));
-//     vec.push_back(Vector3(1.7f, 0.0f, -1.7f));
-//     vec.push_back(Vector3(0.0f, 1.0f, 0.0f));
-//     vec.push_back(Vector3(0.0f, -1.0f, 0.0f));
-//     vec.push_back(Vector3(-1.7f, 0.0f, 1.7f));
-//     vec.push_back(Vector3(-1.7f, 0.0f, -1.7f));
-//    vec.push_back(Vector3(0.0f, 0.0f, 0.0f));
-//    vec.push_back(Vector3(1.0f, 0.0f, 0.0f));
-//    vec.push_back(Vector3(0.0f, 1.0f, 0.0f));
-//    vec.push_back(Vector3(0.0f, 0.0f, 1.0f));
-//    vec.push_back(Vector3(0.3f, 0.3f, 0.3f));
-//    vec.push_back(Vector3(0.5f, 0.5f, 0.5f));
-//    vec.push_back(Vector3(0.5f, 0.5f, 1.5f));
-//    vec.push_back(Vector3(0.3f, 0.8f, 0.8f));
+//    for (int i = 0; i < this->delaunayPointsCount; i++) {
+//      float r = random(0.0, 1.0f);
+//      float phi = random(-90, 90)/180.0*PI;
+//      float theta = random(0, 360)/180.0*PI;
+//      vec.push_back(Vector3(
+//        random(-1.0f, 1.0f),
+//        random(-1.0f, 1.0f),
+//        random(-1.0f, 1.0f)));
+//    }
+     vec.push_back(Vector3(1.7f, 0.0f, 1.7f));
+     vec.push_back(Vector3(1.7f, 0.0f, -1.7f));
+     vec.push_back(Vector3(0.0f, 1.0f, 0.0f));
+     vec.push_back(Vector3(0.0f, -1.0f, 0.0f));
+     vec.push_back(Vector3(-1.7f, 0.0f, 1.7f));
+     vec.push_back(Vector3(-1.7f, 0.0f, -1.7f));
+
     for (int i = 0; i < this->delaunayPointsCount; i++) {
         vec[i].setindex(i);
     }

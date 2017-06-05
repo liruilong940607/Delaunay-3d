@@ -43,8 +43,7 @@ void GLWidget::initializeGL()
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
-//    static GLfloat lightpos[4] =
-//    glLightfv(GL_LIGHT0,GL_POSITION,lightpos);
+
     GLfloat ambient[] = {1.0, 0.0, 0.0, 1.0};
     GLfloat diffuse[] = {1.0, 1.0, 1.0, 1.0};
     glLightfv(GL_LIGHT0,GL_AMBIENT,ambient);
@@ -55,7 +54,6 @@ void GLWidget::initializeGL()
 }
 void GLWidget::paintGL()
 {
-    qDebug()<<"----------paintGL---------";
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
     glLoadIdentity();
     gluLookAt(eyex, eyey, eyez, centerx, centery, centerz, upx, upy, upz);
@@ -69,15 +67,14 @@ void GLWidget::paintGL()
         paint_delauny();
      if (F3_start) // show voronoi vertics
          paint_voronoi_vertics();
-     if (F4_start) // show voronoi cell
+     if (F4_start) // show voronoi convhull-cell
          paint_voronoi_cell();
-     if (F5_start) // show voronoi all cells
+     if (F5_start) // show voronoi all cells and biggest sphere
          paint_voronoi_cell_all();
-     if (F6_start)
+     if (F6_start) // show delaunay process
          paint_delauney_process(process_step);
     Triangle TT = Triangle(Vector3(0.0f,1.0f,0.0f),Vector3(1.0f,0.0f,0.0f),
              Vector3(0.0f,0.0f,0.0f));
-    printf("center: %f %f %f %f\n",TT.o.X,TT.o.Y,TT.o.Z,TT.r);
     glFlush();  
 }
 void GLWidget::resizeGL(int width, int height)
@@ -313,7 +310,6 @@ void GLWidget::paint_delauney_process(int step){
     if(!(m_cube.cur_data_draw_type == DeleteBigTetra ||
          m_cube.cur_data_draw_type == SetCurrentTetras ||
             m_cube.cur_data_draw_type == CreateBigTetra)){
-        printf("SetCurrentPoint \n");
         m_cube.paint_delauney_process(step, 4);
         const GLfloat* data11 = m_cube.constData();
         glPointSize(30.0f);
@@ -413,37 +409,28 @@ void GLWidget::paint_voronoi_cell_all(){
         glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
         glLineWidth(10.0f);
         glBegin( GL_TRIANGLES );
-        printf("tri size!!!!!????? %d",m_cube.count()/6/3);
         for (int i = 0; i < m_cube.count()/6/3; i++){
             for (int j = 0; j < 3; ++j){
-//                if (abs(data[i*6*3+j*6+0])==2)
-//                    continue;
                 glVertex3f(data[i*6*3+j*6+0],  data[i*6*3+j*6+1],  data[i*6*3+j*6+2] );
 
             }
         }
         glEnd();
+
         glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
         glColor4f(mycolor[idx%10][0],
                   mycolor[idx%10][1],
                   mycolor[idx%10][2],0.3f);
         glBegin( GL_TRIANGLES );
-        printf("tri size!!!!!????? %d",m_cube.count()/6/3);
         for (int i = 0; i < m_cube.count()/6/3; i++){
             for (int j = 0; j < 3; ++j){
                 GLfloat norm[3] = {data[i*6*3+j*6+3], data[i*6*3+j*6+4], data[i*6*3+j*6+5]};
-//                if (abs(data[i*6*3+j*6+0])==2)
-//                    continue;
                 glNormal3fv(norm);
                 glVertex3f(data[i*6*3+j*6+0],  data[i*6*3+j*6+1],  data[i*6*3+j*6+2] );
 
             }
         }
         glEnd();
-
-
-
-
     }
     glEnable(GL_LIGHTING);
 }

@@ -101,9 +101,7 @@ vector<vector<array<Vector3,3>>> PointSets3D::Voronoi3d(Vector3 min, Vector3 max
             }
             // find out intersect of Ray and cube's plane
             Triangle t = Triangle(S[tris[j][0]],S[tris[j][1]],S[tris[j][2]]);
-            printf("%d\n", i);
             if(is_hit(t.o,t.getNormal(),min,max,p)){
-                printf("ppppppp: %f %f %f\n",p.X,p.Y,p.Z);
                 for(int k=0;k<3;k++) polyvec[tris[j][k]].push_back(p);
             }
             // find out intersect of Polytope's plane and cube's segment
@@ -124,24 +122,6 @@ vector<vector<array<Vector3,3>>> PointSets3D::Voronoi3d(Vector3 min, Vector3 max
         }
 
     }
-
-//    for( int i=0;i<TETRA.size();i++) {
-
-//        if(exm_pnts[TETRA[i][0]]+exm_pnts[TETRA[i][1]]+
-//           exm_pnts[TETRA[i][2]]+exm_pnts[TETRA[i][3]]>2){ // three points on the convhull
-//            v.clear();
-//            for(int j=0;j<4;j++)
-//                if(exm_pnts[TETRA[i][j]]) v.push_back(TETRA[i][j]);
-//                else p_in = TETRA[i][j];
-//            Triangle t = Triangle(S[v[0]],S[v[1]],S[v[2]]);
-//            if(dist_p2plane(S[p_in],S[v[0]],S[v[1]],S[v[2]])>0)
-//                t = Triangle(S[v[2]],S[v[1]],S[v[0]]);
-//            printf("%d\n", i);
-//            if(is_hit(t.o,t.getNormal(),min,max,p))
-//                for(int j=0;j<3;j++) polyvec[v[j]].push_back(p);
-//        }
-//    }
-
 
     // construct polytope
     vector<array<Vector3,3>> trivec;
@@ -211,49 +191,7 @@ vector<Tetrahedron> PointSets3D::delaunay() {
     for(int i=0;i<S.size();i++) S[i].index=i;
 
     dln.SetData( S );
-    qh_vertex_t vertices[S.size()];
-    for (int i = 0; i < this->S.size(); i++) {
-        vertices[i].x = S[i].X;
-        vertices[i].y = S[i].Y;
-        vertices[i].z = S[i].Z;
-    }
-    qh_mesh_t m = qh_quickhull3d(vertices, S.size());
-    for (int i = 0, j = 0; i < m.nindices; i += 3, j++) {
-        if ( m.indices[i+0] < m.nvertices && m.indices[i+1] < m.nvertices && m.indices[i+2] < m.nvertices &&  m.normalindices[j] < m.nnormals ) {
-            qh_vertex_t * v0 = m.vertices + m.indices[i+0];
-            qh_vertex_t * v1 = m.vertices + m.indices[i+1];
-            qh_vertex_t * v2 = m.vertices + m.indices[i+2];
-            Vector3 vec1 = Vector3(float(v0->x),float(v0->y),float(v0->z));
-            Vector3 vec2 = Vector3(float(v1->x),float(v1->y),float(v1->z));
-            Vector3 vec3 = Vector3(float(v2->x),float(v2->y),float(v2->z));
-            for (int k = 0; k < this->S.size(); k++) {
-                if (vec1.Distancef(&S[k])<0.0001)
-                    vec1.index = S[k].index;
-                if (vec2.Distancef(&S[k])<0.0001)
-                    vec2.index = S[k].index;
-                if (vec3.Distancef(&S[k])<0.0001)
-                    vec3.index = S[k].index;
-            }
-            bool is_need = true;
-            for (int m = 0; m<dln.triangles.size(); m++){
-                if(Triangle(vec1 ,vec2, vec3).equals(dln.triangles[m])){
-                    is_need = false;
-                    break;
-                }
-            }
-            if(is_need){
-                printf("need!!!!!!!!!!!!!!!!!");
-                for(int n = 0; n<S.size(); n++){
-                    if(ishas3tri(Triangle(vec1 ,vec2, vec3), S[i])){
-                        printf("add!!!!!");
-                          dln.tetras.push_back(Tetrahedron(vec1,vec2,vec3,S[i]));
-                    }
-                }
-            }
-        }
-    }
-    printf("in delaunay.");
-    qh_free_mesh(m);
+
     TETRA.clear();
     for(int i=0;i<dln.tetras.size();i++) {
         TETRA.push_back(dln.tetras[i].getVerticesIndex());
@@ -368,38 +306,4 @@ int PointSets3D::intersect3D_SegmentPlane( Vector3 P0, Vector3 P1, Vector3 V0, V
 
     *I = P0 + u * sI;                  // compute segment intersect point
     return 1;
-}
-
-int voronoi3d_demo() {
-    srand((unsigned)time(0));
-    //vector<Vector3> s;
-    Triangle TT = Triangle(Vector3(0.0f,0.0f,0.0f),Vector3(1.0f,0.0f,0.0f),
-                    Vector3(0.0f,1.0f,0.0f));
-    printf("center %f %f %f\n",TT.o.X,TT.o.Y,TT.o.Z);
-    /*Vector3 s[8] = {Vector3(0,0,0),Vector3(1,0,0),
-                   Vector3(0,1,0),Vector3(0,0,1),
-                    Vector3(0.3f,0.3f,0.3f),
-                    Vector3(0.5f,0.5f,0.5f),
-                    Vector3(0.5f,0.5f,1.5f),
-                    Vector3(0.3f,0.8f,0.8f),
-
-    };*/
-    Vector3 s[6] = {Vector3(1,0,0),Vector3(-1,0,0),
-                   Vector3(0.f,0.5f,0.f),Vector3(0.f,-0.5f,0.f),
-                    Vector3(0.f,0.f,1.f),
-                    Vector3(0.f,0.f,-1.f),
-
-
-    };
-    //Vector3 v;
-    //for(int i=0;i<8;i++) s.push_back( v.Rand_Vector(0,10) );
-
-    PointSets3D PS( s,6 );
-
-    // print S
-    for(int i=0;i<6;i++) printf("(%f %f %f)\n",s[i].X,s[i].Y,s[i].Z);
-
-    PS.Voronoi3d( Vector3(-2,-2,-2),Vector3(2,2,2) );
-
-    return 0;
 }

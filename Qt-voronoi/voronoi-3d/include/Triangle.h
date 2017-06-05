@@ -45,22 +45,6 @@ public:
         return l;
     }
 
-
-    /*bool equals(Triangle t) {
-        vector<Line> lines1 = this->getLines();
-        vector<Line> lines2 = t.getLines();
-
-        int cnt = 0;
-        for(int i = 0; i < lines1.size(); i++) {
-            for(int j = 0; j < lines2.size(); j++) {
-                if (lines1[i].equals(lines2[j]))
-                    cnt++;
-            }
-        }
-        if (cnt == 3) return true;
-        else return false;
-    }*/
-
     bool equals(Triangle t) {
         int cnt = 0;
         if (v1 == t.v1)  cnt++;

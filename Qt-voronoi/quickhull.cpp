@@ -1155,7 +1155,6 @@ float qh__compute_epsilon(qh_vertex_t const* vertices, unsigned int nvertices)
     }
 
     epsilon = 2 * (maxxi + maxyi) * QH_FLT_EPS;
-    printf("eps: %f\n",epsilon);
     return epsilon;
 }
 

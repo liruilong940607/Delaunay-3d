@@ -47,13 +47,11 @@ public:
     }
     // consider a point as a vector object
     void SetData(vector<Vector3> seq) {
-        cout << "input points num is : " << seq.size() << endl;
         for(int i = 0; i<seq.size(); i++) {
             vertices.push_back(seq[i]);
         }
         sort(vertices.begin(), vertices.end(), myComp); // sort by x, fome small to big
         vertices.erase(unique(vertices.begin(), vertices.end(), myUnique), vertices.end()); // erase the same points
-        cout << "need to process num is: " << vertices.size() << endl;
 
         tetras.clear();
 
@@ -69,8 +67,6 @@ public:
             vMin.Y = min(vMin.Y, v.Y);
             vMin.Z = min(vMin.Z, v.X);
         }
-        cout << "vMax: " << vMax.X << " " << vMax.Y << " " << vMax.Z << endl;
-        cout << "vMin: " << vMin.X << " " << vMin.Y << " " << vMin.Z << endl;
         Vector3 center = Vector3();
         center.X = 0.5f * (vMax.X + vMin.X);  // fixed
         center.Y = 0.5f * (vMax.Y + vMin.Y);  // fixed
@@ -82,8 +78,6 @@ public:
                 r = center.Distancef(&v);
         }
         r += 0.1f;
-        cout << "circle.o: " << center << " circle.r: " << r << endl;
-        cout << "get circle" << endl;
 
         Vector3 v1 = Vector3();
         v1.X = center.X;
@@ -111,10 +105,6 @@ public:
         outer.push_back(v4);
         tetras.push_back(Tetrahedron(v1, v2, v3, v4));
 
-        cout << "outer 1: " << v1<< endl;
-        cout << "outer 2: " << v2 << endl;
-        cout << "outer 3: " << v3 << endl;
-        cout << "outer 4: " << v4 << endl;
         bigtetra = Tetrahedron(v1, v2, v3, v4);
         vector<Tetrahedron> tmpTList;
         vector<Tetrahedron> newTList;
@@ -124,7 +114,6 @@ public:
         eventvec.push_back(Event(CreateBigTetra,tetras,tmpTList,newTList,isRedundancy_vec_tmp,v_tmp));
 
         for (int i=0; i<vertices.size(); i++)  {
-            cout << "i: " << i << endl;
             Vector3 v = vertices[i];
             std::vector<int> isRedundancy_vec;
             tmpTList.clear();
@@ -136,7 +125,6 @@ public:
                     eventvec.push_back(Event(JudgeIsInSphere,tetras,tmpTList,newTList,isRedundancy_vec,v));
                 }
             }
-            cout << "tetras" << endl;
             tmpProcess.push_back(tmpTList);
             for (int t=0; t<tmpTList.size(); t++) {
                 Tetrahedron t1 = tmpTList[t];
@@ -151,7 +139,7 @@ public:
                 newTList.push_back(Tetrahedron(v2, v3, v4, v));
             }
             eventvec.push_back(Event(CreateFourNewTetraAndRemove,tetras,tmpTList,newTList,isRedundancy_vec,v));
-            cout << "newTList" << endl;
+
             newProcess.push_back(newTList);
             bool isRedundancy[newTList.size()];
             for (int ii = 0; ii < newTList.size(); ii++)
@@ -162,8 +150,6 @@ public:
                     if(newTList[ii].equals(newTList[jj])) {
                         isRedundancy[ii] = true;
                         isRedundancy[jj] = true;
-                        // cout << "i: " << newTList[ii].vertices[0] << newTList[ii].vertices[1] << newTList[ii].vertices[2] << newTList[ii].vertices[3] << endl;
-                        // cout << "j: " << newTList[jj].vertices[0] << newTList[jj].vertices[1] << newTList[jj].vertices[2] << newTList[jj].vertices[3] << endl;
                     }
             for (int ii = 0; ii < newTList.size(); ii++)
                 isRedundancy_vec.push_back(isRedundancy[ii]);
@@ -172,14 +158,12 @@ public:
             for (int ii = 0; ii < newTList.size(); ii++)
                 if (!isRedundancy[ii])
                     tetras.push_back(newTList[ii]);
-            cout << "delete" << endl;
+
             tetrasProcess.push_back(tetras);
             eventvec.push_back(Event(SetCurrentTetras,tetras,tmpTList,newTList,isRedundancy_vec,v));
 
         }
 
-        cout<<"stage1"<<endl;
-        cout << "outer size: " << outer.size() << endl;
         bool isOuter = false;
         for (int i = 0; i<tetras.size(); i++) {
             Tetrahedron t4 = tetras[i];
@@ -197,7 +181,6 @@ public:
         }
         eventvec.push_back(Event(DeleteBigTetra,tetras,tmpTList,newTList,isRedundancy_vec_tmp,v_tmp));
 
-        cout<<"stage2"<<endl;
         triangles.clear();
         vector<Triangle> triList;
         for (int i = 0; i<tetras.size(); i++) {
@@ -228,7 +211,7 @@ public:
             triList.push_back(tri3);
             triList.push_back(tri4);
         }
-        cout<<"stage4"<<endl;
+
         bool isSameTriangle[triList.size()];
         for(int i = 0; i < triList.size()-1; i++) {
             for(int j = i+1; j < triList.size(); j++) {
@@ -242,7 +225,6 @@ public:
             if (!isSameTriangle[i])
                 triangles.push_back(triList[i]);
         }
-        cout<<"stage5"<<endl;
     }
 
 
