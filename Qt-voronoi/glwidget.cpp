@@ -420,7 +420,7 @@ void GLWidget::paint_voronoi_cell_all(){
         glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
         glColor4f(mycolor[idx%10][0],
                   mycolor[idx%10][1],
-                  mycolor[idx%10][2],0.3f);
+                  mycolor[idx%10][2],0.6f);
         glBegin( GL_TRIANGLES );
         for (int i = 0; i < m_cube.count()/6/3; i++){
             for (int j = 0; j < 3; ++j){

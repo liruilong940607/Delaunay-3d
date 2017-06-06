@@ -25,7 +25,7 @@
 #endif
 
 #ifndef QH_FLT_EPS
-#define QH_FLT_EPS 0//1E-5F
+#define QH_FLT_EPS 1E-5F
 #endif
 
 #ifndef QH_VERTEX_SET_SIZE
